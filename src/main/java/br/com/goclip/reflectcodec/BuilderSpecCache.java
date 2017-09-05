@@ -23,7 +23,7 @@ public class BuilderSpecCache {
 
     public boolean hasPackageName(Class<?> cachedClass) {
         Package aPackage = cachedClass.getPackage();
-        return aPackage != null && aPackage.getName().equals(packageName);
+        return aPackage != null && aPackage.getName().contains(packageName);
     }
 
     public BuilderSpec get(Class<?> cachedClass) {
