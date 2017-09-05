@@ -11,16 +11,12 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Enclosed.class)
 public class CodecTest {
-
 
     abstract static class Describe_Codec_Classes {
         <T> void writeReadCompare(T source, Codec<T> codec) {
@@ -87,7 +83,11 @@ public class CodecTest {
             aQueue.offer("lol");
             aQueue.offer("lol");
 
-            writeReadCompare(new PojoWithCollection(strings, strings1, strings2, aQueue), givenCodec(PojoWithCollection.class));
+            List<PojoWithEnum> pojoWithEnums = new ArrayList<>();
+            pojoWithEnums.add(new PojoWithEnum("lol", PojoWithEnum.TestEnum.VALUE_1));
+            pojoWithEnums.add(new PojoWithEnum("lol2", PojoWithEnum.TestEnum.VALUE_2));
+
+            writeReadCompare(new PojoWithCollection(strings, strings1, strings2, aQueue, null), givenCodec(PojoWithCollection.class));
         }
 
     }

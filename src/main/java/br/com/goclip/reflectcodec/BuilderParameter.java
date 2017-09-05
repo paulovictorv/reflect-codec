@@ -8,24 +8,35 @@ public class BuilderParameter implements Comparable<BuilderParameter> {
     public final int order;
     public final String name;
     public final Class<?> type;
+    public final Class<?> genericType;
     public final Object value;
 
     public BuilderParameter(int order, String name, Class<?> type) {
         this.order = order;
         this.name = name;
         this.type = type;
+        this.genericType = null;
         this.value = null;
     }
 
-    public BuilderParameter(int order, String name, Class<?> type, Object value) {
+    public BuilderParameter(int order, String name, Class<?> type, Class<?> genericType) {
         this.order = order;
         this.name = name;
         this.type = type;
+        this.genericType = genericType;
+        this.value = null;
+    }
+
+    public BuilderParameter(int order, String name, Class<?> type, Class<?> genericType, Object value) {
+        this.order = order;
+        this.name = name;
+        this.type = type;
+        this.genericType = genericType;
         this.value = value;
     }
 
     public BuilderParameter withValue(Object value) {
-        return new BuilderParameter(this.order, this.name, this.type, value);
+        return new BuilderParameter(this.order, this.name, this.type, this.genericType, value);
     }
 
     public Object value() {

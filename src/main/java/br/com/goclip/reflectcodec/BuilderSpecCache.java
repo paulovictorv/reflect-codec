@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,7 +51,13 @@ public class BuilderSpecCache {
                 int order = 0;
                 for (Parameter parameter : parameters) {
                     JsonProperty parameterName = parameter.getAnnotation(JsonProperty.class);
-                    builderSpec.addParameter(new BuilderParameter(order++, parameterName.value(), parameter.getType()));
+                    Type parameterizedType = parameter.getParameterizedType();
+                    if (parameterizedType instanceof ParameterizedType) {
+                        Type type = ((ParameterizedType) parameterizedType).getActualTypeArguments()[0];
+                        builderSpec.addParameter(new BuilderParameter(order++, parameterName.value(), parameter.getType(), (Class<?>) type));
+                    } else {
+                        builderSpec.addParameter(new BuilderParameter(order++, parameterName.value(), parameter.getType()));
+                    }
                 }
             }
         }

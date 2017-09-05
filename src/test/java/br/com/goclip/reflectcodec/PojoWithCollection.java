@@ -13,16 +13,19 @@ public class PojoWithCollection {
     public final List<String> stringList;
     public final LinkedList<String> concreteList;
     public final Queue<String> aQueue;
+    private final List<PojoWithEnum> complexList;
 
     @JsonCreator
     public PojoWithCollection(@JsonProperty("strings") Set<String> strings,
                               @JsonProperty("stringList") List<String> stringList,
                               @JsonProperty("concreteList") LinkedList<String> concreteList,
-                              @JsonProperty("aQueue") Queue<String> aQueue) {
+                              @JsonProperty("aQueue") Queue<String> aQueue,
+                              @JsonProperty("complexList") List<PojoWithEnum> complexList) {
         this.strings = strings;
         this.stringList = stringList;
         this.concreteList = concreteList;
         this.aQueue = aQueue;
+        this.complexList = complexList;
     }
 
     @Override

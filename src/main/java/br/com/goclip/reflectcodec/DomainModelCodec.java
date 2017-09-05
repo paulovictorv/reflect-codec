@@ -11,6 +11,8 @@ import org.bson.codecs.configuration.CodecRegistry;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -44,38 +46,26 @@ public class DomainModelCodec implements Codec<Object> {
                         }
                     });
                 } else {
-                    builder.mapValue(fieldName, type -> {
+                    builder.mapValue(fieldName, builderParameter -> {
                         if (reader.getCurrentBsonType() == BsonType.NULL) {
                             reader.readNull();
                             return null;
-                        } else if (type.isPrimitive()) {
-                            return this.registry.get(mapToBoxedType(type)).decode(reader, decoderContext);
-                        } else if (Collection.class.isAssignableFrom(type)) {
-                            //if parameter is collection, lets decode it
-                            //by default mongo decodes an bson array to an ArrayList
-                            ArrayList<Object> defaultList = (ArrayList<Object>) this.registry.get(type).decode(reader, decoderContext);
-
-                            //Lets check if our type is an interface or a concrete type
-                            if (type.isInterface()) { //if it is an abstract type, we need to define a default implementation
-                                //TODO define this as an hotspot
-                                //TODO read straight from the source array instead of copying
-                                if (Set.class.isAssignableFrom(type)) {
-                                    return new HashSet<>(defaultList);
-                                } else if (Queue.class.isAssignableFrom(type)) {
-                                    return new LinkedList<>(defaultList);
-                                } else {
-                                    return new ArrayList<>(defaultList);
-                                }
-                            } else { //if it's a concrete type, assume it has an constructor that accepts a collection
-                                try {
-                                    return type.getConstructor(Collection.class).newInstance(defaultList);
-                                } catch (Exception e) {
-                                    //if it doesn't, we scream
-                                    throw new RuntimeException("Unsupported Collection: " + type.getSimpleName());
-                                }
+                        } else if (builderParameter.type.isPrimitive()) {
+                            return this.registry.get(mapToBoxedType(builderParameter.type)).decode(reader, decoderContext);
+                        } else if (Collection.class.isAssignableFrom(builderParameter.type)
+                                && reader.getCurrentBsonType() == BsonType.ARRAY) {
+                            //if parameter is a collection, lets decode it
+                            //getting the actual generic type to decode it correctly
+                            Collection dynamic = buildCollection(builderParameter.type);
+                            reader.readStartArray();
+                            while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
+                                Object decode = this.registry.get(builderParameter.genericType).decode(reader, decoderContext);
+                                dynamic.add(decode);
                             }
+                            reader.readEndArray();
+                            return dynamic;
                         } else {
-                            return this.registry.get(type).decode(reader, decoderContext);
+                            return this.registry.get(builderParameter.type).decode(reader, decoderContext);
                         }
                     });
                 }
@@ -87,6 +77,27 @@ public class DomainModelCodec implements Codec<Object> {
         reader.readEndDocument();
 
         return builder.build();
+    }
+
+    private Collection buildCollection(Class<?> type) {
+        //Lets check if our type is an interface or a concrete type
+        if (type.isInterface()) { //if it is an abstract type, we need to define a default implementation
+            //TODO define this as an hotspot
+            if (Set.class.isAssignableFrom(type)) {
+                return new HashSet<>();
+            } else if (Queue.class.isAssignableFrom(type)) {
+                return new LinkedList<>();
+            } else {
+                return new ArrayList<>();
+            }
+        } else { //if it's a concrete type, assume it has an constructor that accepts a collection
+            try {
+                return (Collection) type.getConstructor().newInstance();
+            } catch (Exception e) {
+                //if it doesn't, we scream
+                throw new RuntimeException("Unsupported Collection: " + type.getSimpleName());
+            }
+        }
     }
 
     private Class<?> mapToBoxedType(Class<?> type) {

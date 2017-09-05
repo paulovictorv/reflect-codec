@@ -29,11 +29,11 @@ public class ObjectBuilder {
         return parameterMap.get(fieldName).type.isEnum();
     }
 
-    public void mapValue(String name, Function<Class<?>, Object> mapper) {
+    public void mapValue(String name, Function<BuilderParameter, Object> mapper) {
         parameterMap.computeIfPresent(name, (key, par) -> {
             return mapper
                     .andThen(par::withValue)
-                    .apply(par.type);
+                    .apply(par);
         });
     }
 
