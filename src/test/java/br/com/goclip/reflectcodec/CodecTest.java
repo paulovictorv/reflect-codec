@@ -37,6 +37,24 @@ public class CodecTest {
             assertThat(readNow).isEqualTo(source);
         }
 
+        <T> void writeReadCompareInverted(T source, Codec<T> codec) {
+            BasicOutputBuffer bsonOutput = new BasicOutputBuffer();
+            BsonBinaryWriter writer = new BsonBinaryWriter(bsonOutput);
+            writer.writeStartDocument();
+            writer.writeName("name");
+            codec.encode(writer, source, EncoderContext.builder().build());
+            writer.writeEndDocument();
+            writer.close();
+
+            BsonBinaryReader reader = new BsonBinaryReader(
+                    ByteBuffer.wrap(bsonOutput.toByteArray()));
+            reader.readStartDocument();
+            assertThat(reader.readName()).isEqualTo("name");
+            T readNow = codec.decode(reader, DecoderContext.builder().build());
+
+            assertThat(readNow).isNotEqualTo(source);
+        }
+
         <T> DomainModelCodec givenCodec(Class<T> tClass) {
             BuilderSpecCache builderSpecCache = new BuilderSpecCache("");
             return new DomainModelCodec(MongoClient.getDefaultCodecRegistry(),
@@ -88,6 +106,15 @@ public class CodecTest {
             pojoWithEnums.add(new PojoWithEnum("lol2", PojoWithEnum.TestEnum.VALUE_2));
 
             writeReadCompare(new PojoWithCollection(strings, strings1, strings2, aQueue, null), givenCodec(PojoWithCollection.class));
+        }
+
+    }
+
+    public static class When_Class_Has_Transient_Parameter extends Describe_Codec_Classes {
+
+        @Test
+        public void shouldDecodeCorrectly() {
+            writeReadCompareInverted(new PojoWithTransient("test"), givenCodec(PojoWithTransient.class));
         }
 
     }

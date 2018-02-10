@@ -9,10 +9,7 @@ import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
 import org.bson.codecs.configuration.CodecRegistry;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -126,23 +123,26 @@ public class DomainModelCodec implements Codec<Object> {
         writer.writeStartDocument();
         Field[] fields = value.getClass().getFields();
         for (Field field : fields) {
-            writer.writeName(field.getName());
-            try {
-                @SuppressWarnings("unchecked")
-                Class<Object> type = (Class<Object>) field.getType();
-                Object o = field.get(value);
-                if (o == null) {
-                    writer.writeNull();
-                } else if (type.isEnum()) {
-                    writer.writeString(o.toString());
-                } else if (type.isPrimitive()) {
-                    Class<Object> objectClass = (Class<Object>) mapToBoxedType(type);
-                    this.registry.get(objectClass).encode(writer, o, encoderContext);
-                } else {
-                    this.registry.get(type).encode(writer, o, encoderContext);
+            if (!Modifier.isTransient(field.getModifiers())) {
+                try {
+                    @SuppressWarnings("unchecked")
+                    Class<Object> type = (Class<Object>) field.getType();
+                    Object o = field.get(value);
+                    if (o != null) {
+                        writer.writeName(field.getName());
+                        if (type.isEnum()) {
+                            writer.writeString(o.toString());
+                        } else if (type.isPrimitive()) {
+                            Class<Object> objectClass = (Class<Object>) mapToBoxedType(type);
+                            this.registry.get(objectClass).encode(writer, o, encoderContext);
+                        } else {
+                            this.registry.get(type).encode(writer, o, encoderContext);
+                        }
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
                 }
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
+
             }
 
         }
