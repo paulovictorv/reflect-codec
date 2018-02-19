@@ -131,7 +131,8 @@ public class DomainModelCodec implements Codec<Object> {
                     if (o != null) {
                         writer.writeName(field.getName());
                         if (type.isEnum()) {
-                            writer.writeString(o.toString());
+                            String value1 = o.toString();
+                            writer.writeString(value1);
                         } else if (type.isPrimitive()) {
                             Class<Object> objectClass = (Class<Object>) mapToBoxedType(type);
                             this.registry.get(objectClass).encode(writer, o, encoderContext);

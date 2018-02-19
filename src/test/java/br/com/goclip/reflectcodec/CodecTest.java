@@ -1,11 +1,14 @@
 package br.com.goclip.reflectcodec;
 
+import br.com.goclip.reflectcodec.enumcodec.EnumCodecProvider;
 import com.mongodb.MongoClient;
 import org.bson.BsonBinaryReader;
 import org.bson.BsonBinaryWriter;
 import org.bson.codecs.Codec;
 import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.io.BasicOutputBuffer;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -22,16 +25,11 @@ public class CodecTest {
         <T> void writeReadCompare(T source, Codec<T> codec) {
             BasicOutputBuffer bsonOutput = new BasicOutputBuffer();
             BsonBinaryWriter writer = new BsonBinaryWriter(bsonOutput);
-            writer.writeStartDocument();
-            writer.writeName("name");
             codec.encode(writer, source, EncoderContext.builder().build());
-            writer.writeEndDocument();
             writer.close();
 
             BsonBinaryReader reader = new BsonBinaryReader(
                     ByteBuffer.wrap(bsonOutput.toByteArray()));
-            reader.readStartDocument();
-            assertThat(reader.readName()).isEqualTo("name");
             T readNow = codec.decode(reader, DecoderContext.builder().build());
 
             assertThat(readNow).isEqualTo(source);
@@ -57,7 +55,9 @@ public class CodecTest {
 
         <T> DomainModelCodec givenCodec(Class<T> tClass) {
             BuilderSpecCache builderSpecCache = new BuilderSpecCache("");
-            return new DomainModelCodec(MongoClient.getDefaultCodecRegistry(),
+            CodecRegistry codecRegistry1 = CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry(),
+                    CodecRegistries.fromProviders(new EnumCodecProvider()));
+            return new DomainModelCodec(codecRegistry1,
                     builderSpecCache.createSpec(tClass));
         }
 
@@ -106,6 +106,20 @@ public class CodecTest {
             pojoWithEnums.add(new PojoWithEnum("lol2", PojoWithEnum.TestEnum.VALUE_2));
 
             writeReadCompare(new PojoWithCollection(strings, strings1, strings2, aQueue, null), givenCodec(PojoWithCollection.class));
+        }
+
+    }
+
+    public static class When_Class_Has_Collection_Parameter_With_Enum extends Describe_Codec_Classes {
+
+        @Test
+        public void shouldDecodeCorrectly() {
+            List<PojoWithEnumList.TestEnum> enums = new ArrayList<PojoWithEnumList.TestEnum>() {{
+                add(PojoWithEnumList.TestEnum.VALUE_1);
+                add(PojoWithEnumList.TestEnum.VALUE_1);
+            }};
+
+            writeReadCompare(new PojoWithEnumList("aname", enums), givenCodec(PojoWithEnumList.class));
         }
 
     }
