@@ -17,7 +17,7 @@ public class AppCodecProvider implements CodecProvider {
 
     @Override
     public <T> Codec<T> get(Class<T> clazz, CodecRegistry registry) {
-        if (cache.hasPackageName(clazz)) {
+        if (!Enum.class.isAssignableFrom(clazz) && cache.hasPackageName(clazz)) {
             return (Codec<T>) new DomainModelCodec(registry, cache.get(clazz));
         }
         return null;

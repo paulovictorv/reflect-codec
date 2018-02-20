@@ -33,39 +33,28 @@ public class DomainModelCodec implements Codec<Object> {
             String fieldName = reader.readName();
 
             if (builder.hasField(fieldName)) {
-                if (builder.isEnum(fieldName)) {
-                    builder.mapEnumValue(fieldName, enumType -> {
-                        if (reader.getCurrentBsonType() == BsonType.NULL) {
-                            reader.readNull();
-                            return null;
-                        } else {
-                            return Enum.valueOf(enumType, reader.readString());
+                builder.mapValue(fieldName, builderParameter -> {
+                    if (reader.getCurrentBsonType() == BsonType.NULL) {
+                        reader.readNull();
+                        return null;
+                    } else if (builderParameter.type.isPrimitive()) {
+                        return this.registry.get(mapToBoxedType(builderParameter.type)).decode(reader, decoderContext);
+                    } else if (Collection.class.isAssignableFrom(builderParameter.type)
+                            && reader.getCurrentBsonType() == BsonType.ARRAY) {
+                        //if parameter is a collection, lets decode it
+                        //getting the actual generic type to decode it correctly
+                        Collection dynamic = buildCollection(builderParameter.type);
+                        reader.readStartArray();
+                        while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
+                            Object decode = this.registry.get(builderParameter.genericType).decode(reader, decoderContext);
+                            dynamic.add(decode);
                         }
-                    });
-                } else {
-                    builder.mapValue(fieldName, builderParameter -> {
-                        if (reader.getCurrentBsonType() == BsonType.NULL) {
-                            reader.readNull();
-                            return null;
-                        } else if (builderParameter.type.isPrimitive()) {
-                            return this.registry.get(mapToBoxedType(builderParameter.type)).decode(reader, decoderContext);
-                        } else if (Collection.class.isAssignableFrom(builderParameter.type)
-                                && reader.getCurrentBsonType() == BsonType.ARRAY) {
-                            //if parameter is a collection, lets decode it
-                            //getting the actual generic type to decode it correctly
-                            Collection dynamic = buildCollection(builderParameter.type);
-                            reader.readStartArray();
-                            while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
-                                Object decode = this.registry.get(builderParameter.genericType).decode(reader, decoderContext);
-                                dynamic.add(decode);
-                            }
-                            reader.readEndArray();
-                            return dynamic;
-                        } else {
-                            return this.registry.get(builderParameter.type).decode(reader, decoderContext);
-                        }
-                    });
-                }
+                        reader.readEndArray();
+                        return dynamic;
+                    } else {
+                        return this.registry.get(builderParameter.type).decode(reader, decoderContext);
+                    }
+                });
             } else {
                 reader.skipValue();
             }
@@ -130,10 +119,7 @@ public class DomainModelCodec implements Codec<Object> {
                     Object o = field.get(value);
                     if (o != null) {
                         writer.writeName(field.getName());
-                        if (type.isEnum()) {
-                            String value1 = o.toString();
-                            writer.writeString(value1);
-                        } else if (type.isPrimitive()) {
+                        if (type.isPrimitive()) {
                             Class<Object> objectClass = (Class<Object>) mapToBoxedType(type);
                             this.registry.get(objectClass).encode(writer, o, encoderContext);
                         } else {
