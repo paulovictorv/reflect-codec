@@ -120,6 +120,7 @@ public class DomainModelCodec implements Codec<Object> {
                     if (o != null) {
                         writer.writeName(field.getName());
                         if (type.isPrimitive()) {
+                            @SuppressWarnings("unchecked")
                             Class<Object> objectClass = (Class<Object>) mapToBoxedType(type);
                             this.registry.get(objectClass).encode(writer, o, encoderContext);
                         } else {

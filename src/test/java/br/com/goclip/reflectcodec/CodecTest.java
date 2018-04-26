@@ -1,6 +1,7 @@
 package br.com.goclip.reflectcodec;
 
 import br.com.goclip.reflectcodec.enumcodec.EnumCodecProvider;
+import br.com.goclip.reflectcodec.model.*;
 import com.mongodb.MongoClient;
 import org.bson.BsonBinaryReader;
 import org.bson.BsonBinaryWriter;
@@ -10,18 +11,17 @@ import org.bson.codecs.EncoderContext;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.io.BasicOutputBuffer;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
 import java.nio.ByteBuffer;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(Enclosed.class)
 public class CodecTest {
 
-    abstract static class Describe_Codec_Classes {
+    abstract class DescribeCodecClasses {
         <T> void writeReadCompare(T source, Codec<T> codec) {
             BasicOutputBuffer bsonOutput = new BasicOutputBuffer();
             BsonBinaryWriter writer = new BsonBinaryWriter(bsonOutput);
@@ -63,7 +63,8 @@ public class CodecTest {
 
     }
 
-    public static class When_Class_Has_Primitive_Parameters extends Describe_Codec_Classes {
+    @Nested
+    public class WhenClassHasPrimitiveParameters extends DescribeCodecClasses {
 
         @Test
         public void shouldDecodeCorrectly() {
@@ -72,7 +73,8 @@ public class CodecTest {
 
     }
 
-    public static class When_Class_Has_Enum_Parameter extends Describe_Codec_Classes {
+    @Nested
+    public class WhenClassHasEnumParameter extends DescribeCodecClasses {
 
         @Test
         public void shouldDecodeCorrectly() {
@@ -81,7 +83,8 @@ public class CodecTest {
 
     }
 
-    public static class When_Class_Has_Collection_Parameter extends Describe_Codec_Classes {
+    @Nested
+    public class WhenClassHasCollectionParameter extends DescribeCodecClasses {
 
         @Test
         public void shouldDecodeCorrectly() {
@@ -110,7 +113,8 @@ public class CodecTest {
 
     }
 
-    public static class When_Class_Has_Collection_Parameter_With_Enum extends Describe_Codec_Classes {
+    @Nested
+    public class WhenClassHasCollectionParameterWithEnum extends DescribeCodecClasses {
 
         @Test
         public void shouldDecodeCorrectly() {
@@ -124,7 +128,8 @@ public class CodecTest {
 
     }
 
-    public static class When_Class_Has_Transient_Parameter extends Describe_Codec_Classes {
+    @Nested
+    public class WhenClassHasTransientParameter extends DescribeCodecClasses {
 
         @Test
         public void shouldDecodeCorrectly() {

@@ -37,14 +37,6 @@ public class ObjectBuilder {
         });
     }
 
-    public void mapEnumValue(String fieldName, Function<Class<? extends Enum>, ? extends Enum> enumMapper) {
-        parameterMap.computeIfPresent(fieldName, (String key, BuilderParameter par) -> {
-            return enumMapper
-                    .andThen(par::withValue)
-                    .apply((Class<? extends Enum>) par.type);
-        });
-    }
-
     private Object[] values() {
         return parameterMap.values().stream()
                 .sorted()

@@ -17,6 +17,7 @@ public class BuilderSpecCache {
 
     private final String packageName;
     private final Map<Class<?>, BuilderSpec> cache;
+    private Map<Object, Class<?>> concreteResolutionMap;
 
     public BuilderSpecCache(String packageName) {
         this.packageName = packageName;
@@ -31,9 +32,20 @@ public class BuilderSpecCache {
     public BuilderSpec get(Class<?> cachedClass) {
         BuilderSpec specification = this.cache.get(cachedClass);
         if (specification == null) {
-            BuilderSpec spec = createSpec(cachedClass);
-            this.cache.put(cachedClass, spec);
-            return spec;
+            if (cachedClass.isInterface()) {
+                if (cachedClass.isAnnotationPresent(Inheritance.class)) {
+                    Inheritance annotation = cachedClass.getAnnotation(Inheritance.class);
+                    for (InheritanceMap inheritanceMap : cachedClass.getAnnotationsByType(InheritanceMap.class)) {
+                        concreteResolutionMap.put(inheritanceMap.keyValue(), inheritanceMap.impl());
+                        this.cache.put(inheritanceMap.impl(), createSpec(cachedClass));
+                    }
+                }
+                return this.cache.get(cachedClass);
+            } else {
+                BuilderSpec spec = createSpec(cachedClass);
+                this.cache.put(cachedClass, spec);
+                return spec;
+            }
         } else {
             return specification;
         }
