@@ -6,7 +6,7 @@
 
     <groupId>br.com.goclip</groupId>
     <artifactId>reflect-codec</artifactId>
-    <version>0.1.1</version>
+    <version>0.7.1</version>
 
     <repositories>
         <repository>
