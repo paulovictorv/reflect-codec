@@ -1,7 +1,7 @@
 package br.com.goclip.reflectcodec;
 
 import br.com.goclip.reflectcodec.enumcodec.EnumCodecProvider;
-import br.com.goclip.reflectcodec.model.*;
+import br.com.goclip.reflectcodec.jacksoninterop.creators.model.*;
 import com.mongodb.MongoClient;
 import org.bson.BsonBinaryReader;
 import org.bson.BsonBinaryWriter;
@@ -35,7 +35,7 @@ public class CodecTest {
             assertThat(readNow).isEqualTo(source);
         }
 
-        <T> void writeReadCompareInverted(T source, Codec<T> codec) {
+        <T> void readWriteCompare(T source, Codec<T> codec) {
             BasicOutputBuffer bsonOutput = new BasicOutputBuffer();
             BsonBinaryWriter writer = new BsonBinaryWriter(bsonOutput);
             writer.writeStartDocument();
@@ -133,7 +133,7 @@ public class CodecTest {
 
         @Test
         void itShouldDecodeCorrectly() {
-            writeReadCompareInverted(new PojoWithTransient("test"), givenCodec(PojoWithTransient.class));
+            readWriteCompare(new PojoWithTransient("test"), givenCodec(PojoWithTransient.class));
         }
 
     }

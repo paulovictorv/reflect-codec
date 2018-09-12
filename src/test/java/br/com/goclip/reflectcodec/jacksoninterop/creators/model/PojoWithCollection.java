@@ -1,4 +1,4 @@
-package br.com.goclip.reflectcodec.model;
+package br.com.goclip.reflectcodec.jacksoninterop.creators.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
