@@ -1,74 +1,21 @@
 package br.com.goclip.reflectcodec;
 
-import br.com.goclip.reflectcodec.enumcodec.EnumCodecProvider;
 import br.com.goclip.reflectcodec.jacksoninterop.creators.model.*;
-import com.mongodb.MongoClient;
-import org.bson.BsonBinaryReader;
-import org.bson.BsonBinaryWriter;
-import org.bson.codecs.Codec;
-import org.bson.codecs.DecoderContext;
-import org.bson.codecs.EncoderContext;
-import org.bson.codecs.configuration.CodecRegistries;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.io.BasicOutputBuffer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.nio.ByteBuffer;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CodecTest {
 
-    abstract class DescribeCodecClasses {
-        <T> void writeReadCompare(T source, Codec<T> codec) {
-            BasicOutputBuffer bsonOutput = new BasicOutputBuffer();
-            BsonBinaryWriter writer = new BsonBinaryWriter(bsonOutput);
-            codec.encode(writer, source, EncoderContext.builder().build());
-            writer.close();
-
-            BsonBinaryReader reader = new BsonBinaryReader(
-                    ByteBuffer.wrap(bsonOutput.toByteArray()));
-            T readNow = codec.decode(reader, DecoderContext.builder().build());
-
-            assertThat(readNow).isEqualTo(source);
-        }
-
-        <T> void readWriteCompare(T source, Codec<T> codec) {
-            BasicOutputBuffer bsonOutput = new BasicOutputBuffer();
-            BsonBinaryWriter writer = new BsonBinaryWriter(bsonOutput);
-            writer.writeStartDocument();
-            writer.writeName("name");
-            codec.encode(writer, source, EncoderContext.builder().build());
-            writer.writeEndDocument();
-            writer.close();
-
-            BsonBinaryReader reader = new BsonBinaryReader(
-                    ByteBuffer.wrap(bsonOutput.toByteArray()));
-            reader.readStartDocument();
-            assertThat(reader.readName()).isEqualTo("name");
-            T readNow = codec.decode(reader, DecoderContext.builder().build());
-
-            assertThat(readNow).isNotEqualTo(source);
-        }
-
-        <T> DomainModelCodec givenCodec(Class<T> tClass) {
-            BuilderSpecCache builderSpecCache = new BuilderSpecCache("");
-            CodecRegistry codecRegistry1 = CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry(),
-                    CodecRegistries.fromProviders(new EnumCodecProvider()));
-            return new DomainModelCodec(codecRegistry1,
-                    builderSpecCache.createSpec(tClass));
-        }
-
-    }
-
     @Nested
     class WhenClassHasPrimitiveParameters extends DescribeCodecClasses {
 
         @Test
         void itShouldDecodeCorrectly() {
-            writeReadCompare(new PrimitivePojo(12, 'a', 12L, 12.33, 12.33f, (byte) 1), givenCodec(PrimitivePojo.class));
+            writeReadCompare(new PrimitivePojo(12, 'a', 12L, 12.33, 12.33f, (byte) 1), codec(PrimitivePojo.class));
         }
 
     }
@@ -78,7 +25,7 @@ public class CodecTest {
 
         @Test
         void itShouldDecodeCorrectly() {
-            writeReadCompare(new PojoWithEnum("name", PojoWithEnum.TestEnum.VALUE_1), givenCodec(PojoWithEnum.class));
+            writeReadCompare(new PojoWithEnum("name", PojoWithEnum.TestEnum.VALUE_1), codec(PojoWithEnum.class));
         }
 
     }
@@ -108,7 +55,7 @@ public class CodecTest {
             pojoWithEnums.add(new PojoWithEnum("lol", PojoWithEnum.TestEnum.VALUE_1));
             pojoWithEnums.add(new PojoWithEnum("lol2", PojoWithEnum.TestEnum.VALUE_2));
 
-            writeReadCompare(new PojoWithCollection(strings, strings1, strings2, aQueue, null), givenCodec(PojoWithCollection.class));
+            writeReadCompare(new PojoWithCollection(strings, strings1, strings2, aQueue, null), codec(PojoWithCollection.class));
         }
 
     }
@@ -123,7 +70,7 @@ public class CodecTest {
                 add(PojoWithEnumList.TestEnum.VALUE_1);
             }};
 
-            writeReadCompare(new PojoWithEnumList("aname", enums), givenCodec(PojoWithEnumList.class));
+            writeReadCompare(new PojoWithEnumList("aname", enums), codec(PojoWithEnumList.class));
         }
 
     }
@@ -133,7 +80,7 @@ public class CodecTest {
 
         @Test
         void itShouldDecodeCorrectly() {
-            readWriteCompare(new PojoWithTransient("test"), givenCodec(PojoWithTransient.class));
+            readWriteCompare(new PojoWithTransient("test"), codec(PojoWithTransient.class));
         }
 
     }
