@@ -1,6 +1,6 @@
 package br.com.goclip.reflectcodec;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import br.com.goclip.reflectcodec.util.Encoder;
 import org.bson.BsonReader;
 import org.bson.BsonType;
 import org.bson.BsonWriter;
@@ -9,8 +9,9 @@ import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
 import org.bson.codecs.configuration.CodecRegistry;
 
-import java.lang.reflect.*;
 import java.util.*;
+
+import static br.com.goclip.reflectcodec.util.PrimitiveUtils.mapToBoxedType;
 
 /**
  * Created by paulo on 10/06/17.
@@ -18,10 +19,12 @@ import java.util.*;
 public class DomainModelCodec implements Codec<Object> {
     private final CodecRegistry registry;
     private final BuilderSpec builderSpec;
+    private final Encoder encoder;
 
     public DomainModelCodec(CodecRegistry registry, BuilderSpec builderSpec) {
         this.registry = registry;
         this.builderSpec = builderSpec;
+        this.encoder = new Encoder(registry);
     }
 
     @Override
@@ -86,54 +89,9 @@ public class DomainModelCodec implements Codec<Object> {
         }
     }
 
-    private Class<?> mapToBoxedType(Class<?> type) {
-        switch (type.getName()) {
-            case "byte":
-                return Byte.class;
-            case "short":
-                return Short.class;
-            case "int":
-                return Integer.class;
-            case "long":
-                return Long.class;
-            case "float":
-                return Float.class;
-            case "double":
-                return Double.class;
-            case "boolean":
-                return Boolean.class;
-            default:
-                return Character.class;
-        }
-    }
-
     @Override
     public void encode(BsonWriter writer, Object value, EncoderContext encoderContext) {
-        writer.writeStartDocument();
-        Field[] fields = value.getClass().getFields();
-        for (Field field : fields) {
-            if (!Modifier.isTransient(field.getModifiers())) {
-                try {
-                    @SuppressWarnings("unchecked")
-                    Class<Object> type = (Class<Object>) field.getType();
-                    Object o = field.get(value);
-                    if (o != null) {
-                        writer.writeName(field.getName());
-                        if (type.isPrimitive()) {
-                            Class<Object> objectClass = (Class<Object>) mapToBoxedType(type);
-                            this.registry.get(objectClass).encode(writer, o, encoderContext);
-                        } else {
-                            this.registry.get(type).encode(writer, o, encoderContext);
-                        }
-                    }
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-        }
-        writer.writeEndDocument();
+        this.encoder.encode(writer, value, encoderContext);
     }
 
     @Override

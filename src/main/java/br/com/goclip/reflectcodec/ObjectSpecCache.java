@@ -2,28 +2,30 @@ package br.com.goclip.reflectcodec;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Created by paulo on 16/06/17.
  */
-public class BuilderSpecCache {
+public class ObjectSpecCache {
 
     private final String packageName;
     private final Map<Class<?>, BuilderSpec> cache;
+    private final HashMap<Class<?>, CompositeBuilderSpec> compositeCache;
 
-    public BuilderSpecCache(String packageName) {
+    public ObjectSpecCache(String packageName) {
         this.packageName = packageName;
         cache = new HashMap<>();
+        compositeCache = new HashMap<>();
     }
 
-    public boolean hasPackageName(Class<?> cachedClass) {
+    boolean hasPackageName(Class<?> cachedClass) {
         Package aPackage = cachedClass.getPackage();
         return aPackage != null && aPackage.getName().contains(packageName);
     }
@@ -39,7 +41,35 @@ public class BuilderSpecCache {
         }
     }
 
-    public BuilderSpec createSpec(Class<?> cachedClass) {
+    public CompositeBuilderSpec getComposite(Class<?> cachedClass) {
+        CompositeBuilderSpec specification = this.compositeCache.get(cachedClass);
+        if (specification == null) {
+                CompositeBuilderSpec compositeSpec = createCompositeSpec(cachedClass);
+                this.compositeCache.put(cachedClass, compositeSpec);
+                return compositeSpec;
+        } else {
+            return specification;
+        }
+    }
+
+    private BuilderSpec createSpec(TypeName typeName) {
+        return createSpec(typeName.value).withName(typeName.name);
+    }
+
+    private CompositeBuilderSpec createCompositeSpec(Class<?> cachedClass) {
+        String typePropertyName = cachedClass.getAnnotationsByType(JsonTypeInfo.class)[0].property();
+        CompositeBuilderSpec compositeBuilderSpec = new CompositeBuilderSpec(typePropertyName);
+        JsonSubTypes jsonSubTypes = cachedClass.getAnnotationsByType(JsonSubTypes.class)[0];
+        Stream.of(jsonSubTypes.value())
+                .map(type -> new TypeName(type.name(), type.value()))
+                .map(this::createSpec)
+                .peek(builderSpec -> {
+                    this.cache.put(builderSpec.targetClass, builderSpec);
+                }).forEach(compositeBuilderSpec::addBuilderSpec);
+        return compositeBuilderSpec;
+    }
+
+    private BuilderSpec createSpec(Class<?> cachedClass) {
         Constructor<?>[] constructors = cachedClass.getConstructors();
 
         BuilderSpec builderSpec = new BuilderSpec(cachedClass);

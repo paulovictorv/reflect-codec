@@ -60,5 +60,9 @@ public class BuilderParameter implements Comparable<BuilderParameter> {
     public String name() {
         return name;
     }
+
+    public Class<?> type() {
+        return type;
+    }
 }
 
