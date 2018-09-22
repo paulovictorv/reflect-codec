@@ -3,6 +3,7 @@ package br.com.goclip.reflectcodec;
 import java.util.*;
 
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 public class CompositeBuilderSpec {
 
@@ -52,7 +53,8 @@ public class CompositeBuilderSpec {
                 .map(BuilderSpec::builderParameters)
                 //map list of lists to a list
                 .flatMap(Collection::stream)
-                //todo handle duplicate key names
+                //deduplicating key names - will overwrite descendants key definitions
+                .collect(toSet()).stream()
                 //build a lookup map name -> type
                 .collect(toMap(BuilderParameter::name, BuilderParameter::type))
                 //get it

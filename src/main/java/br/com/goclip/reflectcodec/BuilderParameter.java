@@ -1,5 +1,7 @@
 package br.com.goclip.reflectcodec;
 
+import java.util.Objects;
+
 /**
  * Created by paulo on 15/06/17.
  */
@@ -50,6 +52,19 @@ public class BuilderParameter implements Comparable<BuilderParameter> {
                 ", type=" + type +
                 ", value=" + value +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BuilderParameter that = (BuilderParameter) o;
+        return Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 
     @Override
