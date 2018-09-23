@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CategoryRental extends Rental {
     @JsonCreator
-    public CategoryRental(@JsonProperty("id") String id) {
+    public CategoryRental(@JsonProperty("_id") String id) {
         super(id, Link.Type.CATEGORY_RENTAL);
     }
 }

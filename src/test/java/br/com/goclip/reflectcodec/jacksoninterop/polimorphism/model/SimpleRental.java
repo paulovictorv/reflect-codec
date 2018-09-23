@@ -8,7 +8,7 @@ public class SimpleRental extends Rental {
     public final Person person;
 
     @JsonCreator
-    public SimpleRental(@JsonProperty("id") String id,
+    public SimpleRental(@JsonProperty("_id") String id,
                         @JsonProperty("person") Person person) {
         super(id, Type.SIMPLE_RENTAL);
         this.person = person;

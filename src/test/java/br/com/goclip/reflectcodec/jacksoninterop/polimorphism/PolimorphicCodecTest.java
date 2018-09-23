@@ -1,9 +1,7 @@
 package br.com.goclip.reflectcodec.jacksoninterop.polimorphism;
 
 import br.com.goclip.reflectcodec.DescribeCodecClasses;
-import br.com.goclip.reflectcodec.jacksoninterop.polimorphism.model.Link;
-import br.com.goclip.reflectcodec.jacksoninterop.polimorphism.model.Person;
-import br.com.goclip.reflectcodec.jacksoninterop.polimorphism.model.SimpleRental;
+import br.com.goclip.reflectcodec.jacksoninterop.polimorphism.model.*;
 import org.bson.io.BasicOutputBuffer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -13,31 +11,50 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PolimorphicCodecTest {
 
-    abstract class DescribePolimorphicTest extends DescribeCodecClasses {
+    abstract class DescribePolimorphicTest<T> extends DescribeCodecClasses {
+        T read;
 
-        protected Link read;
-
-        abstract Link subject();
-        abstract Class<Link> theClass();
+        protected abstract BasicOutputBuffer write();
+        protected abstract T read(BasicOutputBuffer buffer);
 
         @BeforeEach
         protected void encoding() {
-            BasicOutputBuffer write = write(subject(), theClass());
-            read = read(write, theClass());
+            read = read(write());
         }
     }
 
     @Nested
-    class WhenProvidingTopmostClass extends DescribePolimorphicTest {
+    class WhenProvidingTopmostClass extends DescribePolimorphicTest<Link> {
 
         @Override
-        Link subject() {
-            return new SimpleRental("123", new Person("name"));
+        protected BasicOutputBuffer write() {
+            return write(new SimpleRental("123", new Person("name")), Link.class);
         }
 
         @Override
-        Class<Link> theClass() {
-            return Link.class;
+        protected Link read(BasicOutputBuffer buffer) {
+            return read(buffer, Link.class);
+        }
+
+        @Test
+        void itShouldDecodeToSimpleRental() {
+            assertThat(read)
+                    .isInstanceOf(SimpleRental.class);
+        }
+
+    }
+
+    @Nested
+    class WhenProvidingMiddleClass extends DescribePolimorphicTest<SimpleRental> {
+
+        @Override
+        protected BasicOutputBuffer write() {
+            return write(new SimpleRental("123", new Person("name")), Link.class);
+        }
+
+        @Override
+        protected SimpleRental read(BasicOutputBuffer buffer) {
+            return read(buffer, SimpleRental.class);
         }
 
         @Test
