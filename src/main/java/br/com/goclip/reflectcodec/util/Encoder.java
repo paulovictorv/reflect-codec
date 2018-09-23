@@ -28,6 +28,7 @@ public class Encoder {
                 try {
                     @SuppressWarnings("unchecked")
                     Class<Object> type = (Class<Object>) field.getType();
+                    field.setAccessible(true);
                     Object o = field.get(value);
                     if (o != null) {
                         writer.writeName(field.getName());
