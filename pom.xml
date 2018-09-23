@@ -8,13 +8,13 @@
     <artifactId>reflect-codec</artifactId>
     <version>0.8.0</version>
 
-    <repositories>
+    <distributionManagement>
         <repository>
             <id>aws-release</id>
             <name>AWS Release Repository</name>
             <url>s3://cliptech-repository/release</url>
         </repository>
-    </repositories>
+    </distributionManagement>
 
     <dependencies>
         <dependency>
