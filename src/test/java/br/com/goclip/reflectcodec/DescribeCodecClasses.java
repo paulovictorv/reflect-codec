@@ -1,7 +1,6 @@
 package br.com.goclip.reflectcodec;
 
 import br.com.goclip.reflectcodec.enumcodec.EnumCodecProvider;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.MongoClient;
 import org.bson.BsonBinaryReader;
 import org.bson.BsonBinaryWriter;
@@ -63,7 +62,8 @@ public abstract class DescribeCodecClasses {
 
     protected <T> Codec<T> codec(Class<T> tClass) {
         CodecRegistry codecRegistry = CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry(),
-                CodecRegistries.fromProviders(new EnumCodecProvider(), new AppCodecProvider("br.com.goclip.reflectcodec")));
+                CodecRegistries.fromProviders(new EnumCodecProvider(),
+                        new AppCodecProvider("br.com.goclip.reflectcodec")));
         return codecRegistry.get(tClass);
     }
 
