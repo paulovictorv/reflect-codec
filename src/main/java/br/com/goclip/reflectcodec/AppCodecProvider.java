@@ -17,6 +17,13 @@ public class AppCodecProvider implements CodecProvider {
         cache = new ObjectSpecCache(packageName);
     }
 
+    /***
+     * Return codec to {@code clazz} if she is not Enum and she belongs to package defined in the constructor
+     * @param clazz represent a class to be encoded/decoded
+     * @param registry
+     * @param <T> Codec and class type
+     * @return codec to clazz
+     */
     @Override
     public <T> Codec<T> get(Class<T> clazz, CodecRegistry registry) {
         if (!Enum.class.isAssignableFrom(clazz) && cache.hasPackageName(clazz)) { //skip enums even if in the same pkg
@@ -30,6 +37,12 @@ public class AppCodecProvider implements CodecProvider {
         return null;
     }
 
+
+    /***
+     * verify if modifiers is an interface or an abstract
+     * @param modifiers a set of modifiers
+     * @return boolean representing if modifiers is an interface or abstract
+     */
     private boolean needsPolymorphism(int modifiers) {
         return Modifier.isInterface(modifiers) || Modifier.isAbstract(modifiers);
     }

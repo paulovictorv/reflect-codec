@@ -25,11 +25,24 @@ public class ObjectSpecCache {
         compositeCache = new HashMap<>();
     }
 
+    /***
+     * Verify if cachedClass belongs to packageName defined in the constructor
+     * @param cachedClass
+     * @return  {@code true} if {@code cachedClass} belongs to package otherwise {@code false}
+     */
     boolean hasPackageName(Class<?> cachedClass) {
         Package aPackage = cachedClass.getPackage();
         return aPackage != null && aPackage.getName().contains(packageName);
     }
 
+
+    /***
+     * Try return BuilderSpec of cachedClass in cache map.
+     * If not exist any BuilderSpec to this cachedClass is created a new and
+     * put in the cache map to future request
+     * @param cachedClass
+     * @return BuilderSpec of cachedClass
+     */
     public BuilderSpec get(Class<?> cachedClass) {
         BuilderSpec specification = this.cache.get(cachedClass);
         if (specification == null) {
@@ -69,6 +82,13 @@ public class ObjectSpecCache {
         return compositeBuilderSpec;
     }
 
+    /***
+     * Create a instance of BuilderSpec from cachedClass,
+     * getting all parameters of constructor noted with @JsonCreator including his name and type
+     * to create the BuilderParameters
+     * @param cachedClass represent class to be encoded/decode
+     * @return a instance of BuilderSpec
+     */
     private BuilderSpec createSpec(Class<?> cachedClass) {
         Constructor<?>[] constructors = cachedClass.getConstructors();
 
