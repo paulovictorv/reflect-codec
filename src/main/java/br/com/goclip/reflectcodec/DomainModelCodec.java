@@ -54,8 +54,6 @@ public class DomainModelCodec implements Codec<Object> {
                         }
                         reader.readEndArray();
                         return dynamic;
-                    } else if (reader.getCurrentBsonType() == BsonType.OBJECT_ID) {
-                        return reader.readObjectId();
                     } else {
                         return this.registry.get(builderParameter.type).decode(reader, decoderContext);
                     }

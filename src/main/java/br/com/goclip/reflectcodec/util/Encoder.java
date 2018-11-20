@@ -3,6 +3,7 @@ package br.com.goclip.reflectcodec.util;
 import org.bson.BsonWriter;
 import org.bson.codecs.EncoderContext;
 import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.types.ObjectId;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -31,7 +32,11 @@ public class Encoder {
                     field.setAccessible(true);
                     Object o = field.get(value);
                     if (o != null) {
-                        writer.writeName(field.getName());
+                        if(field.getType() == ObjectId.class) {
+                            writer.writeName("_id");
+                        } else {
+                            writer.writeName(field.getName());
+                        }
                         if (type.isPrimitive()) {
                             Class<Object> objectClass = (Class<Object>) mapToBoxedType(type);
                             this.registry.get(objectClass).encode(writer, o, encoderContext);
