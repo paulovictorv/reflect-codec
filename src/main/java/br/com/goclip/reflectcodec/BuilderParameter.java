@@ -3,6 +3,13 @@ package br.com.goclip.reflectcodec;
 import java.util.Objects;
 
 /**
+ * This class represent information of each constructor's attribute annotated with @JsonCreator,
+ * to each attribute are saved the follows information:
+ * order: attribute order in the constructor
+ * name: attribute name
+ * type: attribute type
+ * genericType: ?
+ * value: attribute value
  * Created by paulo on 15/06/17.
  */
 public class BuilderParameter implements Comparable<BuilderParameter> {

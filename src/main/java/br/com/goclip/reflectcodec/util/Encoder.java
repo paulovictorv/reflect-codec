@@ -1,9 +1,9 @@
 package br.com.goclip.reflectcodec.util;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.bson.BsonWriter;
 import org.bson.codecs.EncoderContext;
 import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.types.ObjectId;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -32,8 +32,10 @@ public class Encoder {
                     field.setAccessible(true);
                     Object o = field.get(value);
                     if (o != null) {
-                        if(field.getType() == ObjectId.class) {
-                            writer.writeName("_id");
+                        if(field.getDeclaredAnnotations().length > 0 && field.getAnnotation(JsonProperty.class) != null) {
+                            JsonProperty annotation = field.getAnnotation(JsonProperty.class);
+                            String value1 = annotation.value();
+                            writer.writeName(value1);
                         } else {
                             writer.writeName(field.getName());
                         }

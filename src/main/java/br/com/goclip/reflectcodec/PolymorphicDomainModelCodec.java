@@ -8,39 +8,14 @@ import org.bson.codecs.Codec;
 import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
 import org.bson.codecs.configuration.CodecRegistry;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Stack;
 
 public class PolymorphicDomainModelCodec implements Codec<Object> {
     private final CodecRegistry registry;
     private final CompositeBuilderSpec builderSpec;
     private final Encoder encoder;
-
-    static class BsonToken {
-
-        public final String name;
-        public final BsonType bsonType;
-        public final Object value;
-
-        public BsonToken(String readName, BsonType readBsonType) {
-            this.name = readName;
-            this.bsonType = readBsonType;
-            this.value = null;
-        }
-
-        private BsonToken(String name, BsonType bsonType, Object value) {
-            this.name = name;
-            this.bsonType = bsonType;
-            this.value = value;
-        }
-
-        public BsonToken withValue(Object value) {
-            return new BsonToken(name, bsonType, value);
-        }
-    }
 
     public PolymorphicDomainModelCodec(CodecRegistry registry, CompositeBuilderSpec builderSpec) {
         this.registry = registry;
@@ -77,5 +52,28 @@ public class PolymorphicDomainModelCodec implements Codec<Object> {
     @Override
     public Class<Object> getEncoderClass() {
         return null;
+    }
+
+    static class BsonToken {
+
+        public final String name;
+        public final BsonType bsonType;
+        public final Object value;
+
+        public BsonToken(String readName, BsonType readBsonType) {
+            this.name = readName;
+            this.bsonType = readBsonType;
+            this.value = null;
+        }
+
+        private BsonToken(String name, BsonType bsonType, Object value) {
+            this.name = name;
+            this.bsonType = bsonType;
+            this.value = value;
+        }
+
+        public BsonToken withValue(Object value) {
+            return new BsonToken(name, bsonType, value);
+        }
     }
 }

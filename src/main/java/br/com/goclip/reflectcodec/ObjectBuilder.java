@@ -25,17 +25,16 @@ public class ObjectBuilder {
         return parameterMap.containsKey(fieldName);
     }
 
-    public boolean isEnum(String fieldName) {
-        return parameterMap.get(fieldName).type.isEnum();
+    public void mapValue(String name, Function<BuilderParameter, Object> mapper) {
+        parameterMap.computeIfPresent(name, (key, par) -> mapper
+                .andThen(par::withValue)
+                .apply(par));
     }
 
-    public void mapValue(String name, Function<BuilderParameter, Object> mapper) {
-        parameterMap.computeIfPresent(name, (key, par) -> {
-            return mapper
-                    .andThen(par::withValue)
-                    .apply(par);
-        });
-    }
+    /***
+     * Generate an attributes values ordered list of constructor
+     * @return attribute values ordered list
+     */
 
     private Object[] values() {
         return parameterMap.values().stream()
@@ -44,6 +43,11 @@ public class ObjectBuilder {
                 .toArray(Object[]::new);
     }
 
+    /***
+     * Create an instance of target class using constructor field and his parameters
+     * @return an instance of target class
+     */
+
     public Object build() {
         try {
             return constructor.newInstance(values());
@@ -51,6 +55,4 @@ public class ObjectBuilder {
             throw new RuntimeException("Unexpected exception", e);
         }
     }
-
-
 }
