@@ -54,6 +54,13 @@ public class ObjectSpecCache {
         }
     }
 
+    /***
+     * Return {@Link CompositeBuilderSpec} contained in the compositeCache map, if it is null
+     * create a new instance of cachedClass and put in compositeCache to be used later
+     * @param cachedClass
+     * @return CompositeBuilderSpec
+     */
+
     public CompositeBuilderSpec getComposite(Class<?> cachedClass) {
         CompositeBuilderSpec specification = this.compositeCache.get(cachedClass);
         if (specification == null) {
