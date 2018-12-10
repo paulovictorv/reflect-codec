@@ -28,8 +28,7 @@ public class DomainModelCodec implements Codec<Object> {
     }
 
     /**
-     * This method does do decode from Mongodb document to corresponding java object, reading each
-     * attribute type and using the corresponding codec to decode
+     * Decodes a Mongodb BSON byte stream to an instance of the corresponding Java class.
      * @param reader
      * @param decoderContext
      * @return target java object
@@ -77,8 +76,8 @@ public class DomainModelCodec implements Codec<Object> {
     }
 
     /***
-     * Create an instance of Collection to be decoded.
-     * if it is an abstract type, we need to define a default implementation otherwise
+     * Creates an instance of the Collection being decoded.
+     * If it is an abstract type, we need to define a default implementation otherwise
      * we assume it has an constructor that accepts a collection
      * @param type
      * @return

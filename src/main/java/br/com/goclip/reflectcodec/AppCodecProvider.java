@@ -18,7 +18,7 @@ public class AppCodecProvider implements CodecProvider {
     }
 
     /***
-     * Return codec to {@code clazz} if she is not Enum and she belongs to package defined in the constructor
+     * Returns a codec for clazz if it's not an Enum and the class is in the package defined during initialization
      * @param clazz represent a class to be encoded/decoded
      * @param registry
      * @param <T> Codec and class type
@@ -39,7 +39,7 @@ public class AppCodecProvider implements CodecProvider {
 
 
     /***
-     * verify if modifiers is an interface or an abstract
+     * Verify if type is an abstract type (interface or abstract class)
      * @param modifiers a set of modifiers
      * @return boolean representing if modifiers is an interface or abstract
      */

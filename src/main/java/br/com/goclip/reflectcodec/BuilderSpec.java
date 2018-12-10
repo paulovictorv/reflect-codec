@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Created by paulo on 15/06/17.
- * This class represent a class to be encoded/decoded contained the follows information:
+ * Represents a class to be encoded/decoded containing the following information:
  * name : represent class name
  * targetClass: represent the class to be encoded/decoded
  * parameters: represent all parameters of constructor noted with @JsonCreator

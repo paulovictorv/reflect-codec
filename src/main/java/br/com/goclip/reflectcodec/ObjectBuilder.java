@@ -32,7 +32,7 @@ public class ObjectBuilder {
     }
 
     /***
-     * Generate an attributes values ordered list of constructor
+     * Generates an ordered array of arguments values to reflectively invoke a constructor
      * @return attribute values ordered list
      */
 
@@ -44,7 +44,7 @@ public class ObjectBuilder {
     }
 
     /***
-     * Create an instance of target class using constructor field and his parameters
+     * Create an instance of target class using constructor field and its parameters
      * @return an instance of target class
      */
 

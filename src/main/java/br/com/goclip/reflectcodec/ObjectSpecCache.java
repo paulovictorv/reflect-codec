@@ -37,9 +37,8 @@ public class ObjectSpecCache {
 
 
     /***
-     * Try return BuilderSpec of cachedClass in cache map.
-     * If not exist any BuilderSpec to this cachedClass is created a new and
-     * put in the cache map to future request
+     * Tries to return a BuilderSpec of a Class.
+     * If the BuilderSpec couldn't be found, a new one is generated, cached and returned
      * @param cachedClass
      * @return BuilderSpec of cachedClass
      */

@@ -6,8 +6,8 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 /***
- * This class contain necessary information to create subclass instance.
- * It's contain follows information:
+ * This class contains all the information necessary to create a concrete instance for a abstract type.
+ * It contains the following info:
  * typeProperty: contain information as type, order, name, value etc of target class
  * classToBuilder: {@link @BulderSpec}
  *
