@@ -1,5 +1,6 @@
 package br.com.goclip.reflectcodec.util;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.bson.BsonWriter;
 import org.bson.codecs.EncoderContext;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -31,7 +32,13 @@ public class Encoder {
                     field.setAccessible(true);
                     Object o = field.get(value);
                     if (o != null) {
-                        writer.writeName(field.getName());
+                        if(field.getDeclaredAnnotations().length > 0 && field.getAnnotation(JsonProperty.class) != null) {
+                            JsonProperty annotation = field.getAnnotation(JsonProperty.class);
+                            String value1 = annotation.value();
+                            writer.writeName(value1);
+                        } else {
+                            writer.writeName(field.getName());
+                        }
                         if (type.isPrimitive()) {
                             Class<Object> objectClass = (Class<Object>) mapToBoxedType(type);
                             this.registry.get(objectClass).encode(writer, o, encoderContext);

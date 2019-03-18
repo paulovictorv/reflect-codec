@@ -25,11 +25,23 @@ public class ObjectSpecCache {
         compositeCache = new HashMap<>();
     }
 
+    /***
+     * Verify if cachedClass belongs to packageName defined in the constructor
+     * @param cachedClass
+     * @return  {@code true} if {@code cachedClass} belongs to package otherwise {@code false}
+     */
     boolean hasPackageName(Class<?> cachedClass) {
         Package aPackage = cachedClass.getPackage();
         return aPackage != null && aPackage.getName().contains(packageName);
     }
 
+
+    /***
+     * Tries to return a BuilderSpec of a Class.
+     * If the BuilderSpec couldn't be found, a new one is generated, cached and returned
+     * @param cachedClass
+     * @return BuilderSpec of cachedClass
+     */
     public BuilderSpec get(Class<?> cachedClass) {
         BuilderSpec specification = this.cache.get(cachedClass);
         if (specification == null) {
@@ -40,6 +52,13 @@ public class ObjectSpecCache {
             return specification;
         }
     }
+
+    /***
+     * Return {@Link CompositeBuilderSpec} contained in the compositeCache map, if it is null
+     * create a new instance of cachedClass and put in compositeCache to be used later
+     * @param cachedClass
+     * @return CompositeBuilderSpec
+     */
 
     public CompositeBuilderSpec getComposite(Class<?> cachedClass) {
         CompositeBuilderSpec specification = this.compositeCache.get(cachedClass);
@@ -56,6 +75,12 @@ public class ObjectSpecCache {
         return createSpec(typeName.value).withName(typeName.name);
     }
 
+    /***
+     * Create a compositeBuilderSpec of concrete subclass according as information
+     * contain in the @JsonTypeInfo and @JsonSubTypes annotations
+     * @param cachedClass
+     * @return
+     */
     private CompositeBuilderSpec createCompositeSpec(Class<?> cachedClass) {
         String typePropertyName = cachedClass.getAnnotationsByType(JsonTypeInfo.class)[0].property();
         CompositeBuilderSpec compositeBuilderSpec = new CompositeBuilderSpec(typePropertyName);
@@ -63,11 +88,19 @@ public class ObjectSpecCache {
         Stream.of(jsonSubTypes.value())
                 .map(type -> new TypeName(type.name(), type.value()))
                 .map(this::createSpec)
-                .peek(builderSpec -> {
-                    this.cache.put(builderSpec.targetClass, builderSpec);
-                }).forEach(compositeBuilderSpec::addBuilderSpec);
+                .peek(builderSpec -> this.cache.put(builderSpec.targetClass, builderSpec))
+                .forEach(compositeBuilderSpec::addBuilderSpec);
         return compositeBuilderSpec;
     }
+
+    /***
+     * Create a instance of BuilderSpec from cachedClass,
+     * getting all parameters of constructor noted with @JsonCreator including his name and type
+     * to create the BuilderParameters
+     * The parameters names are the values contained in the @JsonProperty annotation
+     * @param cachedClass represent class to be encoded/decode
+     * @return a instance of BuilderSpec
+     */
 
     private BuilderSpec createSpec(Class<?> cachedClass) {
         Constructor<?>[] constructors = cachedClass.getConstructors();
@@ -91,7 +124,6 @@ public class ObjectSpecCache {
                 }
             }
         }
-
         return builderSpec;
     }
 }

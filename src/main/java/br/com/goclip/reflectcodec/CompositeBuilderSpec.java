@@ -5,8 +5,14 @@ import java.util.*;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
+/***
+ * This class contains all the information necessary to create a concrete instance for a abstract type.
+ * It contains the following info:
+ * typeProperty: contain information as type, order, name, value etc of target class
+ * classToBuilder: {@link @BulderSpec}
+ *
+ */
 public class CompositeBuilderSpec {
-
     private final BuilderParameter typeProperty;
     private final Map<Class<?>, BuilderSpec> classToBuilder;
     private final Map<String, BuilderSpec> typeNameToBuilder;
@@ -35,14 +41,6 @@ public class CompositeBuilderSpec {
         }
 
         return resultingObjBuilder;
-    }
-
-    public ObjectBuilder builder(Class<?> type) {
-        return classToBuilder.get(type).builder();
-    }
-
-    public ObjectBuilder builder(String typeName) {
-        return typeNameToBuilder.get(typeName).builder();
     }
 
     public Optional<Class<?>> typeFor(String parameterName) {

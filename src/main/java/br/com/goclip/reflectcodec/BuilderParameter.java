@@ -3,6 +3,11 @@ package br.com.goclip.reflectcodec;
 import java.util.Objects;
 
 /**
+ * This class represents the details of each constructor argument. The following info is stored for each attribute:
+ * order: the declaration order of the argument. Needed for reflection invocation.
+ * name: argument name as specified in its annotation
+ * type: argument type, supports generic types
+ * value: the value the corresponding argument should map to
  * Created by paulo on 15/06/17.
  */
 public class BuilderParameter implements Comparable<BuilderParameter> {

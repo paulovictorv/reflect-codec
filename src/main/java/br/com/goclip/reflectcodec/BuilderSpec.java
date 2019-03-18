@@ -6,6 +6,10 @@ import java.util.List;
 
 /**
  * Created by paulo on 15/06/17.
+ * Represents a class to be encoded/decoded containing the following information:
+ * name : represent class name
+ * targetClass: represent the class to be encoded/decoded
+ * parameters: represent all parameters of constructor noted with @JsonCreator
  */
 public class BuilderSpec {
 

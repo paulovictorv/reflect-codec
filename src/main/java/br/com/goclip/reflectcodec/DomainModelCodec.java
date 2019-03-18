@@ -27,6 +27,13 @@ public class DomainModelCodec implements Codec<Object> {
         this.encoder = new Encoder(registry);
     }
 
+    /**
+     * Decodes a Mongodb BSON byte stream to an instance of the corresponding Java class.
+     * @param reader
+     * @param decoderContext
+     * @return target java object
+     */
+
     @Override
     public Object decode(BsonReader reader, DecoderContext decoderContext) {
         ObjectBuilder builder = builderSpec.builder();
@@ -68,9 +75,16 @@ public class DomainModelCodec implements Codec<Object> {
         return builder.build();
     }
 
+    /***
+     * Creates an instance of the Collection being decoded.
+     * If it is an abstract type, we need to define a default implementation otherwise
+     * we assume it has an constructor that accepts a collection
+     * @param type
+     * @return
+     */
+
     private Collection buildCollection(Class<?> type) {
-        //Lets check if our type is an interface or a concrete type
-        if (type.isInterface()) { //if it is an abstract type, we need to define a default implementation
+        if (type.isInterface()) { //
             //TODO define this as an hotspot
             if (Set.class.isAssignableFrom(type)) {
                 return new HashSet<>();
@@ -79,7 +93,7 @@ public class DomainModelCodec implements Codec<Object> {
             } else {
                 return new ArrayList<>();
             }
-        } else { //if it's a concrete type, assume it has an constructor that accepts a collection
+        } else {
             try {
                 return (Collection) type.getConstructor().newInstance();
             } catch (Exception e) {
