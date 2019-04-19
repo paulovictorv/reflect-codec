@@ -3,10 +3,7 @@ package br.com.goclip.reflectcodec.jacksoninterop.creators.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
 public class PojoWithCollection {
     public final Set<String> strings;
@@ -35,10 +32,10 @@ public class PojoWithCollection {
 
         PojoWithCollection that = (PojoWithCollection) o;
 
-        if (strings != null ? !strings.equals(that.strings) : that.strings != null) return false;
-        if (stringList != null ? !stringList.equals(that.stringList) : that.stringList != null) return false;
-        if (concreteList != null ? !concreteList.equals(that.concreteList) : that.concreteList != null) return false;
-        return aQueue != null ? aQueue.equals(that.aQueue) : that.aQueue == null;
+        if (!Objects.equals(strings, that.strings)) return false;
+        if (!Objects.equals(stringList, that.stringList)) return false;
+        if (!Objects.equals(concreteList, that.concreteList)) return false;
+        return Objects.equals(aQueue, that.aQueue);
     }
 
     @Override

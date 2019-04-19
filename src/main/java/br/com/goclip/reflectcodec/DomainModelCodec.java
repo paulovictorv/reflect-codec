@@ -1,5 +1,6 @@
 package br.com.goclip.reflectcodec;
 
+import br.com.goclip.reflectcodec.collections.CollectionCodec;
 import br.com.goclip.reflectcodec.util.Encoder;
 import org.bson.BsonReader;
 import org.bson.BsonType;
@@ -33,7 +34,6 @@ public class DomainModelCodec implements Codec<Object> {
      * @param decoderContext
      * @return target java object
      */
-
     @Override
     public Object decode(BsonReader reader, DecoderContext decoderContext) {
         ObjectBuilder builder = builderSpec.builder();
@@ -51,16 +51,7 @@ public class DomainModelCodec implements Codec<Object> {
                         return this.registry.get(mapToBoxedType(builderParameter.type)).decode(reader, decoderContext);
                     } else if (Collection.class.isAssignableFrom(builderParameter.type)
                             && reader.getCurrentBsonType() == BsonType.ARRAY) {
-                        //if parameter is a collection, lets decode it
-                        //getting the actual generic type to decode it correctly
-                        Collection dynamic = buildCollection(builderParameter.type);
-                        reader.readStartArray();
-                        while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
-                            Object decode = this.registry.get(builderParameter.genericType).decode(reader, decoderContext);
-                            dynamic.add(decode);
-                        }
-                        reader.readEndArray();
-                        return dynamic;
+                        return new CollectionCodec(this.registry, builderParameter).decode(reader, decoderContext);
                     } else {
                         return this.registry.get(builderParameter.type).decode(reader, decoderContext);
                     }
@@ -73,34 +64,6 @@ public class DomainModelCodec implements Codec<Object> {
         reader.readEndDocument();
 
         return builder.build();
-    }
-
-    /***
-     * Creates an instance of the Collection being decoded.
-     * If it is an abstract type, we need to define a default implementation otherwise
-     * we assume it has an constructor that accepts a collection
-     * @param type
-     * @return
-     */
-
-    private Collection buildCollection(Class<?> type) {
-        if (type.isInterface()) { //
-            //TODO define this as an hotspot
-            if (Set.class.isAssignableFrom(type)) {
-                return new HashSet<>();
-            } else if (Queue.class.isAssignableFrom(type)) {
-                return new LinkedList<>();
-            } else {
-                return new ArrayList<>();
-            }
-        } else {
-            try {
-                return (Collection) type.getConstructor().newInstance();
-            } catch (Exception e) {
-                //if it doesn't, we scream
-                throw new RuntimeException("Unsupported Collection: " + type.getSimpleName());
-            }
-        }
     }
 
     @Override
