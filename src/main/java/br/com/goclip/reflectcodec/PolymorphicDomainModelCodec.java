@@ -1,6 +1,6 @@
 package br.com.goclip.reflectcodec;
 
-import br.com.goclip.reflectcodec.util.Encoder;
+import br.com.goclip.reflectcodec.codec.util.Encoder;
 import org.bson.BsonReader;
 import org.bson.BsonType;
 import org.bson.BsonWriter;
@@ -8,6 +8,7 @@ import org.bson.codecs.Codec;
 import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
 import org.bson.codecs.configuration.CodecRegistry;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

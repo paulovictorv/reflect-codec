@@ -1,12 +1,10 @@
 package br.com.goclip.reflectcodec;
 
-import br.com.goclip.reflectcodec.jacksoninterop.creators.model.*;
+import br.com.goclip.reflectcodec.model.*;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class CodecTest {
 
@@ -15,7 +13,7 @@ public class CodecTest {
 
         @Test
         void itShouldDecodeCorrectly() {
-            writeReadCompare(new PrimitivePojo(12, 'a', 12L, 12.33, 12.33f, (byte) 1), codec(PrimitivePojo.class));
+            writeReadCompare(new PrimitivePojo(12, 'a', 12L, 12.33, 12.33f, (byte) 1, false), codec(PrimitivePojo.class));
         }
 
     }

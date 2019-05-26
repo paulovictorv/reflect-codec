@@ -1,4 +1,4 @@
-package br.com.goclip.reflectcodec.util;
+package br.com.goclip.reflectcodec.codec.util;
 
 public class PrimitiveUtils {
 

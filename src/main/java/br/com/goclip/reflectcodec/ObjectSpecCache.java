@@ -5,7 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -35,7 +38,6 @@ public class ObjectSpecCache {
         return aPackage != null && aPackage.getName().contains(packageName);
     }
 
-
     /***
      * Tries to return a BuilderSpec of a Class.
      * If the BuilderSpec couldn't be found, a new one is generated, cached and returned
@@ -63,9 +65,9 @@ public class ObjectSpecCache {
     public CompositeBuilderSpec getComposite(Class<?> cachedClass) {
         CompositeBuilderSpec specification = this.compositeCache.get(cachedClass);
         if (specification == null) {
-                CompositeBuilderSpec compositeSpec = createCompositeSpec(cachedClass);
-                this.compositeCache.put(cachedClass, compositeSpec);
-                return compositeSpec;
+            CompositeBuilderSpec compositeSpec = createCompositeSpec(cachedClass);
+            this.compositeCache.put(cachedClass, compositeSpec);
+            return compositeSpec;
         } else {
             return specification;
         }
@@ -101,7 +103,6 @@ public class ObjectSpecCache {
      * @param cachedClass represent class to be encoded/decode
      * @return a instance of BuilderSpec
      */
-
     private BuilderSpec createSpec(Class<?> cachedClass) {
         Constructor<?>[] constructors = cachedClass.getConstructors();
 

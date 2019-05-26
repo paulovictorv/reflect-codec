@@ -1,8 +1,7 @@
 package br.com.goclip.reflectcodec.collections;
 
-import br.com.goclip.reflectcodec.BuilderParameter;
-import br.com.goclip.reflectcodec.BuilderSpec;
-import br.com.goclip.reflectcodec.util.Encoder;
+import br.com.goclip.reflectcodec.codec.util.Encoder;
+import br.com.goclip.reflectcodec.creator.CreatorParameter;
 import org.bson.BsonReader;
 import org.bson.BsonType;
 import org.bson.BsonWriter;
@@ -16,12 +15,12 @@ import java.util.*;
 public class CollectionCodec<T extends Collection> implements Codec<T> {
 
     private final CodecRegistry registry;
-    private final BuilderParameter builderParameter;
+    private final CreatorParameter creatorParameter;
     private final Encoder encoder;
 
-    public CollectionCodec(CodecRegistry registry, BuilderParameter builderParameter) {
+    public CollectionCodec(CodecRegistry registry, CreatorParameter creatorParameter) {
         this.registry = registry;
-        this.builderParameter = builderParameter;
+        this.creatorParameter = creatorParameter;
         this.encoder = new Encoder(registry);
     }
 
@@ -29,10 +28,10 @@ public class CollectionCodec<T extends Collection> implements Codec<T> {
     public T decode(BsonReader reader, DecoderContext decoderContext) {
         //if parameter is a collection, lets decode it
         //getting the actual generic type to decode it correctly
-        Collection dynamic = buildCollection(builderParameter.type);
+        Collection dynamic = buildCollection(creatorParameter.type);
         reader.readStartArray();
         while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
-            Object decode = this.registry.get(builderParameter.genericType).decode(reader, decoderContext);
+            Object decode = this.registry.get(creatorParameter.genericType).decode(reader, decoderContext);
             dynamic.add(decode);
         }
         reader.readEndArray();
@@ -46,7 +45,7 @@ public class CollectionCodec<T extends Collection> implements Codec<T> {
 
     @Override
     public Class<T> getEncoderClass() {
-        return (Class<T>) this.builderParameter.type;
+        return (Class<T>) this.creatorParameter.type;
     }
 
     /***

@@ -1,7 +1,9 @@
 package br.com.goclip.reflectcodec;
 
+import br.com.goclip.reflectcodec.codec.util.Encoder;
 import br.com.goclip.reflectcodec.collections.CollectionCodec;
-import br.com.goclip.reflectcodec.util.Encoder;
+import br.com.goclip.reflectcodec.creator.Creator;
+import br.com.goclip.reflectcodec.creator.exception.AttributeNotMapped;
 import org.bson.BsonReader;
 import org.bson.BsonType;
 import org.bson.BsonWriter;
@@ -10,21 +12,21 @@ import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
 import org.bson.codecs.configuration.CodecRegistry;
 
-import java.util.*;
+import java.util.Collection;
 
-import static br.com.goclip.reflectcodec.util.PrimitiveUtils.mapToBoxedType;
+import static br.com.goclip.reflectcodec.codec.util.PrimitiveUtils.mapToBoxedType;
 
 /**
  * Created by paulo on 10/06/17.
  */
 public class DomainModelCodec implements Codec<Object> {
     private final CodecRegistry registry;
-    private final BuilderSpec builderSpec;
+    private final Creator creator;
     private final Encoder encoder;
 
-    public DomainModelCodec(CodecRegistry registry, BuilderSpec builderSpec) {
+    public DomainModelCodec(CodecRegistry registry, Creator creator) {
         this.registry = registry;
-        this.builderSpec = builderSpec;
+        this.creator = creator;
         this.encoder = new Encoder(registry);
     }
 
@@ -36,34 +38,37 @@ public class DomainModelCodec implements Codec<Object> {
      */
     @Override
     public Object decode(BsonReader reader, DecoderContext decoderContext) {
-        ObjectBuilder builder = builderSpec.builder();
+        Creator targetCreator = creator;
 
         reader.readStartDocument();
+
         while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
             String fieldName = reader.readName();
 
-            if (builder.hasField(fieldName)) {
-                builder.mapValue(fieldName, builderParameter -> {
+            try {
+                targetCreator = creator.computeValue(fieldName, creatorParameter -> {
                     if (reader.getCurrentBsonType() == BsonType.NULL) {
+                        //TODO config if we should always read/write null values
                         reader.readNull();
                         return null;
-                    } else if (builderParameter.type.isPrimitive()) {
-                        return this.registry.get(mapToBoxedType(builderParameter.type)).decode(reader, decoderContext);
-                    } else if (Collection.class.isAssignableFrom(builderParameter.type)
+                    } else if (creatorParameter.type.isPrimitive()) {
+                        return this.registry.get(mapToBoxedType(creatorParameter.type)).decode(reader, decoderContext);
+                    } else if (Collection.class.isAssignableFrom(creatorParameter.type)
                             && reader.getCurrentBsonType() == BsonType.ARRAY) {
-                        return new CollectionCodec(this.registry, builderParameter).decode(reader, decoderContext);
+                        return new CollectionCodec(this.registry, creatorParameter).decode(reader, decoderContext);
                     } else {
-                        return this.registry.get(builderParameter.type).decode(reader, decoderContext);
+                        return this.registry.get(creatorParameter.type).decode(reader, decoderContext);
                     }
                 });
-            } else {
+            } catch (AttributeNotMapped e) {
+                //TODO config if we should always ignore unmapped or throw exception
                 reader.skipValue();
             }
-
         }
+
         reader.readEndDocument();
 
-        return builder.build();
+        return targetCreator.newInstance();
     }
 
     @Override

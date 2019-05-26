@@ -1,4 +1,4 @@
-package br.com.goclip.reflectcodec.util;
+package br.com.goclip.reflectcodec.codec.util;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.bson.BsonWriter;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static br.com.goclip.reflectcodec.util.PrimitiveUtils.mapToBoxedType;
+import static br.com.goclip.reflectcodec.codec.util.PrimitiveUtils.mapToBoxedType;
 
 public class Encoder {
 

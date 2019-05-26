@@ -1,5 +1,6 @@
 package br.com.goclip.reflectcodec;
 
+import br.com.goclip.reflectcodec.creator.CreatorProvider;
 import org.bson.codecs.Codec;
 import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -12,8 +13,10 @@ import java.lang.reflect.Modifier;
 public class AppCodecProvider implements CodecProvider {
 
     private final ObjectSpecCache cache;
+    private final CreatorProvider creatorProvider;
 
     public AppCodecProvider(String packageName) {
+        creatorProvider = new CreatorProvider(packageName);
         cache = new ObjectSpecCache(packageName);
     }
 
@@ -29,7 +32,7 @@ public class AppCodecProvider implements CodecProvider {
         if (!Enum.class.isAssignableFrom(clazz) && cache.hasPackageName(clazz)) { //skip enums even if in the same pkg
             int modifiers = clazz.getModifiers();
             if (!needsPolymorphism(modifiers)) {
-                return (Codec<T>) new DomainModelCodec(registry, cache.get(clazz));
+                return (Codec<T>) new DomainModelCodec(registry, creatorProvider.get(clazz));
             } else {
                 return (Codec<T>) new PolymorphicDomainModelCodec(registry, cache.getComposite(clazz));
             }
