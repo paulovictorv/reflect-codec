@@ -8,13 +8,13 @@ cache:
 
 build:
   stage: build
-  image: maven:3.3.9-jdk-8
+  image: maven:slim
   script:
   - mvn $MAVEN_CLI_OPTS clean package
 
 deploy:
   stage: deploy
-  image: maven:3.3.9-jdk-8
+  image: maven:slim
   only:
   - tags
   script:
