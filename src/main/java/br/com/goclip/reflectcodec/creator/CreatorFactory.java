@@ -4,6 +4,7 @@ import br.com.goclip.reflectcodec.creator.exception.NoCreatorDefinedException;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.beans.ConstructorProperties;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
@@ -27,7 +28,6 @@ public class CreatorFactory {
                         .withConstructor(constructor))
                 .map(creator -> {
                     Parameter[] parameters = creator.constructor.getParameters();
-
                     List<CreatorParameter> collect = IntStream.range(0, parameters.length)
                             .mapToObj(position -> {
                                 Parameter parameter = parameters[position];
@@ -44,7 +44,32 @@ public class CreatorFactory {
 
                     return creator.withParameters(collect);
                 })
-                .findFirst();
+                .findFirst()
+                .or(() -> Arrays.stream(declaredConstructors)
+                        .filter(constructor -> constructor.getDeclaredAnnotation(ConstructorProperties.class) != null)
+                        .map(constructor -> Creator.create()
+                                .withType(type)
+                                .withConstructor(constructor))
+                        .map(creator -> {
+                            String[] parameterNames = creator.constructor.getDeclaredAnnotation(ConstructorProperties.class).value();
+                            Parameter[] parameters = creator.constructor.getParameters();
+                            List<CreatorParameter> collect = IntStream.range(0, parameters.length)
+                                    .mapToObj(position -> {
+                                        String parameterName = parameterNames[position];
+                                        Parameter parameter = parameters[position];
+
+                                        return extractGenericType(parameter)
+                                                .map(genericType -> CreatorParameter.createGeneric(position,
+                                                        parameter.getType(),
+                                                        genericType,
+                                                        parameterName)
+                                                ).orElse(CreatorParameter.create(position,
+                                                        parameter.getType(), parameterName));
+                                    })
+                                    .collect(toList());
+
+                            return creator.withParameters(collect);
+                        }).findFirst());
 
         return classCreator.orElseThrow(() -> new NoCreatorDefinedException(type));
     }
