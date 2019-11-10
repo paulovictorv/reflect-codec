@@ -3,10 +3,10 @@ package br.com.goclip.reflectcodec.creator;
 import br.com.goclip.reflectcodec.creator.exception.IncompatibleTypesException;
 import lombok.AccessLevel;
 import lombok.Data;
-import lombok.experimental.Wither;
+import lombok.With;
 
 @Data
-@Wither
+@With
 public class CreatorParameter implements Comparable<CreatorParameter> {
 
     public static CreatorParameter create(int position, Class<?> type, String name) {
@@ -21,14 +21,22 @@ public class CreatorParameter implements Comparable<CreatorParameter> {
     public final Class<?> type;
     public final Class<?> genericType;
     public final String name;
-    @Wither(AccessLevel.NONE)
-    public final Object value;
+    @With(AccessLevel.NONE)
+    private final Object value;
 
     public CreatorParameter withValue(Object value) {
         if (!type.isInstance(value)) {
             throw new IncompatibleTypesException(type, value.getClass());
         } else {
             return new CreatorParameter(position, type, null, name, value);
+        }
+    }
+
+    public Object value() {
+        if (value == null && type.isPrimitive()) {
+            return PrimitiveUtils.defaultValue(type);
+        } else {
+            return value;
         }
     }
 

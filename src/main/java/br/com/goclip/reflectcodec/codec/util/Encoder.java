@@ -39,6 +39,7 @@ public class Encoder {
                         } else {
                             writer.writeName(field.getName());
                         }
+
                         if (type.isPrimitive()) {
                             Class<Object> objectClass = (Class<Object>) mapToBoxedType(type);
                             this.registry.get(objectClass).encode(writer, o, encoderContext);

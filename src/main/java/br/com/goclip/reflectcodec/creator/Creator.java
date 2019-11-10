@@ -4,7 +4,7 @@ import br.com.goclip.reflectcodec.creator.exception.AttributeNotMapped;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.Wither;
+import lombok.With;
 
 import java.lang.reflect.Constructor;
 import java.util.Comparator;
@@ -14,7 +14,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Data
-@Wither
+@With
 @RequiredArgsConstructor
 public class Creator {
 
@@ -26,7 +26,7 @@ public class Creator {
     public final Class<?> concreteType;
     public final Constructor<?> constructor;
 
-    @Wither(AccessLevel.NONE)
+    @With(AccessLevel.NONE)
     public final List<CreatorParameter> parameters;
     private Map<String, CreatorParameter> indexedParameters;
 
@@ -44,7 +44,7 @@ public class Creator {
             Object[] sortedParameters = indexedParameters.values()
                     .stream()
                     .sorted(Comparator.comparingInt(o -> o.position))
-                    .map(p -> p.value)
+                    .map(CreatorParameter::value)
                     .collect(Collectors.toList())
                     .toArray(new Object[]{});
 

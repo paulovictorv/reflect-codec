@@ -1,10 +1,13 @@
 package br.com.goclip.reflectcodec;
 
 import br.com.goclip.reflectcodec.model.*;
+import org.bson.io.BasicOutputBuffer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CodecTest {
 

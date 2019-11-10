@@ -26,7 +26,7 @@ public class WithValueTest {
         @Test
         void itShouldThrowCorrectException() {
             CreatorParameter value = string.withValue("Value");
-            assertThat(value.value)
+            assertThat(value.value())
                     .isNotNull()
                     .isInstanceOf(String.class)
                     .isEqualTo("Value");
