@@ -3,6 +3,7 @@ package br.com.goclip.reflectcodec;
 import br.com.goclip.reflectcodec.codec.util.Encoder;
 import br.com.goclip.reflectcodec.collections.CollectionCodec;
 import br.com.goclip.reflectcodec.creator.Creator;
+import br.com.goclip.reflectcodec.creator.Parameters;
 import br.com.goclip.reflectcodec.creator.exception.AttributeNotMapped;
 import org.bson.BsonReader;
 import org.bson.BsonType;
@@ -38,7 +39,7 @@ public class DomainModelCodec implements Codec<Object> {
      */
     @Override
     public Object decode(BsonReader reader, DecoderContext decoderContext) {
-        Creator targetCreator = creator;
+        Parameters parameters = creator.parameters();
 
         reader.readStartDocument();
 
@@ -46,7 +47,7 @@ public class DomainModelCodec implements Codec<Object> {
             String fieldName = reader.readName();
 
             try {
-                targetCreator = creator.computeValue(fieldName, creatorParameter -> {
+                parameters.assignValue(fieldName, creatorParameter -> {
                     if (reader.getCurrentBsonType() == BsonType.NULL) {
                         //TODO config if we should always read/write null values
                         reader.readNull();
@@ -68,7 +69,7 @@ public class DomainModelCodec implements Codec<Object> {
 
         reader.readEndDocument();
 
-        return targetCreator.newInstance();
+        return creator.newInstance(parameters);
     }
 
     @Override

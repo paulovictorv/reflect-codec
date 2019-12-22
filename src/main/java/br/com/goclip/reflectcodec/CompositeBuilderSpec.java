@@ -47,9 +47,8 @@ public class CompositeBuilderSpec {
         if (typeProperty.name().equals(parameterName)) {
             return Optional.of(typeProperty.type());
         } else {
-            Class<?> aClass = this.classToBuilder.entrySet().stream()
-                    //extract value from map
-                    .map(Map.Entry::getValue)
+            //extract value from map
+            Class<?> aClass = this.classToBuilder.values().stream()
                     //extract builder parameters
                     .map(BuilderSpec::builderParameters)
                     //map list of lists to a list

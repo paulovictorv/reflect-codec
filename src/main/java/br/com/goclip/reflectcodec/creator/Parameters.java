@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.With;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -17,27 +16,21 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class Parameters {
 
-    private Creator creator;
+    private String typeName;
     private Map<String, CreatorParameter> indexedParameters;
 
-    public Parameters(List<CreatorParameter> parameters) {
+    public Parameters(String name, List<CreatorParameter> parameters) {
+        this.typeName = name;
         this.indexedParameters = parameters.stream()
                 .collect(Collectors.toMap(p -> p.name, Function.identity()));
     }
 
-    private Parameters(Map<String, CreatorParameter> indexedParameters) {
-        this.indexedParameters = indexedParameters;
-    }
-
-    public Parameters assignValue(String parameterName, Function<CreatorParameter, Object> computingFunction) {
-        Map<String, CreatorParameter> copyOf = new HashMap<>();
-
+    public void assignValue(String parameterName, Function<CreatorParameter, Object> computingFunction) {
         try {
-            copyOf.computeIfPresent(parameterName,
+            indexedParameters.computeIfPresent(parameterName,
                     (key, creatorParameter) -> creatorParameter.withValue(computingFunction.apply(creatorParameter)));
-            return new Parameters(copyOf);
         } catch (NullPointerException e) {
-            throw new AttributeNotMapped(this.creator.type.getSimpleName(), parameterName);
+            throw new AttributeNotMapped(this.typeName, parameterName);
         }
     }
 
@@ -51,6 +44,10 @@ public class Parameters {
     }
 
     protected Parameters copyOf() {
-        return new Parameters(this.creator, this.indexedParameters);
+        return new Parameters(this.typeName, this.indexedParameters);
+    }
+
+    public int count() {
+        return indexedParameters.size();
     }
 }

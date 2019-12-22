@@ -3,6 +3,7 @@ package br.com.goclip.reflectcodec.creator.factory;
 import br.com.goclip.reflectcodec.creator.Creator;
 import br.com.goclip.reflectcodec.creator.CreatorFactory;
 import br.com.goclip.reflectcodec.creator.CreatorParameter;
+import br.com.goclip.reflectcodec.creator.Parameters;
 import br.com.goclip.reflectcodec.model.PojoWithCollection;
 import br.com.goclip.reflectcodec.model.PojoWithEnum;
 import br.com.goclip.reflectcodec.model.constructorproperties.PropsWithCollections;
@@ -30,7 +31,7 @@ public class CreateSingleTest {
 
         abstract Creator setup();
 
-        abstract CreatorParameter[] expectedParameters();
+        abstract Object[] expectedParameters();
     }
 
 
@@ -42,21 +43,24 @@ public class CreateSingleTest {
 
             @Override
             Creator setup() {
-                return CreatorFactory.createSingle(PojoWithEnum.class);
+                Parameters parameters = CreatorFactory.createSingle(PojoWithEnum.class).parameters();
+                parameters.assignValue("name", par -> "string");
+                parameters.assignValue("testEnum", par -> PojoWithEnum.TestEnum.VALUE_1);
+                return parameters;
             }
 
             @Override
-            CreatorParameter[] expectedParameters() {
-                return new CreatorParameter[] {
-                        new CreatorParameter(0, String.class, null, "name", null),
-                        new CreatorParameter(1, PojoWithEnum.TestEnum.class, null, "testEnum", null)
+            Object[] expectedParameters() {
+                return new Object[] {
+                        "string",
+                        PojoWithEnum.TestEnum.VALUE_1
                 };
             }
 
             @Test
             void itShouldListParametersInOrder() {
-                assertThat(creator.parameters)
-                        .hasSize(2)
+                assertThat(creator.parameters().sortedValues())
+                        .isEqualTo(2)
                         .containsExactly(expectedParameters());
             }
         }
@@ -80,7 +84,7 @@ public class CreateSingleTest {
 
             @Test
             void itShouldListParametersInOrder() {
-                assertThat(creator.parameters)
+                assertThat(creator.parameters().getIndexedParameters().values())
                         .hasSize(5)
                         .containsExactly(expectedParameters());
             }
@@ -110,7 +114,7 @@ public class CreateSingleTest {
 
             @Test
             void itShouldListParametersInOrder() {
-                assertThat(creator.parameters)
+                assertThat(creator.parameters().getIndexedParameters().values())
                         .hasSize(5)
                         .containsExactly(expectedParameters());
             }

@@ -15,16 +15,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class NewInstanceTest {
 
     private Creator creator;
+    private Parameters parameters;
 
     @BeforeEach
     void test() {
         this.creator = CreatorFactory.createSingle(PojoWithCollection.class);
-        this.creator
-                .withValue("strings", Set.of("setstring1"))
-                .withValue("stringList", List.of("liststring1"))
-                .withValue("concreteList", new LinkedList<>(List.of("linkedstring1")))
-                .withValue("aQueue", new LinkedList<>(List.of("aa", "bb")))
-                .withValue("complexList", List.of(new PojoWithEnum("name", PojoWithEnum.TestEnum.VALUE_1)));
+        Parameters parameters = this.creator.parameters();
+
+        parameters.assignValue("strings", par -> Set.of("setstring1"));
+        parameters.assignValue("stringList", par -> List.of("liststring1"));
+        parameters.assignValue("concreteList", par -> new LinkedList<>(List.of("linkedstring1")));
+        parameters.assignValue("aQueue", par -> new LinkedList<>(List.of("aa", "bb")));
+        parameters.assignValue("complexList", par -> List.of(new PojoWithEnum("name", PojoWithEnum.TestEnum.VALUE_1)));
     }
 
     @Nested
@@ -32,7 +34,7 @@ public class NewInstanceTest {
 
         @Test
         void itShouldInstantiateCorrectly() {
-            assertThat(creator.newInstance())
+            assertThat(creator.newInstance(parameters))
                     .isInstanceOf(PojoWithCollection.class);
         }
 

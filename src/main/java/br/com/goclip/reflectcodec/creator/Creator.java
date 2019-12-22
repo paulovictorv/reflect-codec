@@ -22,14 +22,14 @@ public class Creator {
         this.type = type;
         this.concreteType = concreteType;
         this.constructor = constructor;
-        this.parameters = parameters.withCreator(this);
+        this.parameters = parameters;
     }
 
     public Parameters parameters() {
         return parameters.copyOf();
     }
 
-    public Object newInstance() {
+    public Object newInstance(Parameters parameters) {
         try {
             return constructor.newInstance(parameters.sortedValues());
         } catch (Exception e) {

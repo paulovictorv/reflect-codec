@@ -42,7 +42,7 @@ public class CreatorFactory {
                             })
                             .collect(toList());
 
-                    return creator.withParameters(collect);
+                    return creator.withParameters(new Parameters(type.getSimpleName(), collect));
                 })
                 .findFirst()
                 .or(() -> Arrays.stream(declaredConstructors)
@@ -68,7 +68,7 @@ public class CreatorFactory {
                                     })
                                     .collect(toList());
 
-                            return creator.withParameters(collect);
+                            return creator.withParameters(new Parameters(type.getSimpleName(), collect));
                         }).findFirst());
 
         return classCreator.orElseThrow(() -> new NoCreatorDefinedException(type));
