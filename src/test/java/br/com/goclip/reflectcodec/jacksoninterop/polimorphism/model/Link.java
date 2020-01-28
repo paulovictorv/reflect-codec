@@ -9,12 +9,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = CategoryRental.class, name = "CATEGORY_RENTAL")
 })
 public abstract class Link {
-    enum Type { SIMPLE_RENTAL, CATEGORY_RENTAL }
+    public enum Type { SIMPLE_RENTAL, CATEGORY_RENTAL }
 
     public final String _id;
     public final Type type;
 
-    protected Link(String id, Type type) {
+    protected Link(String id,
+                   Type type) {
         _id = id;
         this.type = type;
     }

@@ -30,12 +30,7 @@ public class AppCodecProvider implements CodecProvider {
     @Override
     public <T> Codec<T> get(Class<T> clazz, CodecRegistry registry) {
         if (!Enum.class.isAssignableFrom(clazz) && cache.hasPackageName(clazz)) { //skip enums even if in the same pkg
-            int modifiers = clazz.getModifiers();
-            if (!needsPolymorphism(modifiers)) {
-                return (Codec<T>) new DomainModelCodec(registry, creatorProvider.get(clazz));
-            } else {
-                return (Codec<T>) new PolymorphicDomainModelCodec(registry, cache.getComposite(clazz));
-            }
+            return (Codec<T>) new DomainModelCodec(registry, creatorProvider.get(clazz));
         }
         return null;
     }

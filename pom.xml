@@ -65,6 +65,18 @@
             <version>2.9.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ch.rasc</groupId>
+            <artifactId>bsoncodec</artifactId>
+            <version>1.0.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>name.falgout.jeffrey.testing.junit5</groupId>
+            <artifactId>guice-extension</artifactId>
+            <version>1.0.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

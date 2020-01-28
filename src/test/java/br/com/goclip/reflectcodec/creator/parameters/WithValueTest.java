@@ -17,7 +17,7 @@ public class WithValueTest {
 
     @BeforeEach
     void test() {
-        string = new CreatorParameter(0, String.class, null, "strings", null);
+        string = new CreatorParameter(0, String.class, null, "strings", null, null);
     }
 
     @Nested

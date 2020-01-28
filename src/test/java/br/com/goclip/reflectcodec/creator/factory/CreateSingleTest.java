@@ -4,6 +4,7 @@ import br.com.goclip.reflectcodec.creator.Creator;
 import br.com.goclip.reflectcodec.creator.CreatorFactory;
 import br.com.goclip.reflectcodec.creator.CreatorParameter;
 import br.com.goclip.reflectcodec.creator.Parameters;
+import br.com.goclip.reflectcodec.jacksoninterop.polimorphism.model.Link;
 import br.com.goclip.reflectcodec.model.PojoWithCollection;
 import br.com.goclip.reflectcodec.model.PojoWithEnum;
 import br.com.goclip.reflectcodec.model.constructorproperties.PropsWithCollections;
@@ -43,10 +44,12 @@ public class CreateSingleTest {
 
             @Override
             Creator setup() {
-                Parameters parameters = CreatorFactory.createSingle(PojoWithEnum.class).parameters();
+                Creator single = CreatorFactory.create(PojoWithEnum.class);
+                Parameters parameters = single.instanceAttributes.values().stream().findFirst().get();
                 parameters.assignValue("name", par -> "string");
                 parameters.assignValue("testEnum", par -> PojoWithEnum.TestEnum.VALUE_1);
-                return parameters;
+                return null;
+//                return single.withParameters(parameters);
             }
 
             @Override
@@ -59,7 +62,7 @@ public class CreateSingleTest {
 
             @Test
             void itShouldListParametersInOrder() {
-                assertThat(creator.parameters().sortedValues())
+                assertThat(creator.instanceAttributes.values().stream().findFirst().get().sortedValues())
                         .isEqualTo(2)
                         .containsExactly(expectedParameters());
             }
@@ -69,26 +72,25 @@ public class CreateSingleTest {
         class WhenCreatingSingleWithGenerics extends DescribeCreateSingle {
 
             Creator setup() {
-                return CreatorFactory.createSingle(PojoWithCollection.class);
+                return CreatorFactory.create(PojoWithCollection.class);
             }
 
             CreatorParameter[] expectedParameters() {
                 return new CreatorParameter[]{
-                        new CreatorParameter(0, Set.class, String.class, "strings", null),
-                        new CreatorParameter(1, List.class, String.class, "stringList", null),
-                        new CreatorParameter(2, LinkedList.class, String.class, "concreteList", null),
-                        new CreatorParameter(3, Queue.class, String.class, "aQueue", null),
-                        new CreatorParameter(4, List.class, PojoWithEnum.class, "complexList", null)
+                        new CreatorParameter(0, Set.class, String.class, "strings", null, null),
+                        new CreatorParameter(1, List.class, String.class, "stringList", null, null),
+                        new CreatorParameter(2, LinkedList.class, String.class, "concreteList", null, null),
+                        new CreatorParameter(3, Queue.class, String.class, "aQueue", null, null),
+                        new CreatorParameter(4, List.class, PojoWithEnum.class, "complexList", null, null)
                 };
             }
 
             @Test
             void itShouldListParametersInOrder() {
-                assertThat(creator.parameters().getIndexedParameters().values())
+                assertThat(creator.instanceAttributes.values().stream().findFirst().get().getIndexedParameters().values())
                         .hasSize(5)
                         .containsExactly(expectedParameters());
             }
-
         }
     }
 
@@ -99,22 +101,52 @@ public class CreateSingleTest {
         class WhenCreatingSingleWithGenerics extends DescribeCreateSingle {
 
             Creator setup() {
-                return CreatorFactory.createSingle(PropsWithCollections.class);
+                return CreatorFactory.create(PropsWithCollections.class);
             }
 
             CreatorParameter[] expectedParameters() {
                 return new CreatorParameter[]{
-                        new CreatorParameter(0, Set.class, String.class, "strings", null),
-                        new CreatorParameter(1, List.class, String.class, "stringList", null),
-                        new CreatorParameter(2, LinkedList.class, String.class, "concreteList", null),
-                        new CreatorParameter(3, Queue.class, String.class, "aQueue", null),
-                        new CreatorParameter(4, List.class, PojoWithEnum.class, "complexList", null)
+                        new CreatorParameter(0, Set.class, String.class, "strings", null, null),
+                        new CreatorParameter(1, List.class, String.class, "stringList", null, null),
+                        new CreatorParameter(2, LinkedList.class, String.class, "concreteList", null, null),
+                        new CreatorParameter(3, Queue.class, String.class, "aQueue", null, null),
+                        new CreatorParameter(4, List.class, PojoWithEnum.class, "complexList", null, null)
                 };
             }
 
             @Test
             void itShouldListParametersInOrder() {
-                assertThat(creator.parameters().getIndexedParameters().values())
+                assertThat(creator.instanceAttributes.values().stream().findFirst().get().getIndexedParameters().values())
+                        .hasSize(5)
+                        .containsExactly(expectedParameters());
+            }
+        }
+    }
+
+
+    @Nested
+    class WhenReadingSubClasses {
+
+        @Nested
+        class WhenCreatingSingleWithGenerics extends DescribeCreateSingle {
+
+            Creator setup() {
+                return CreatorFactory.create(Link.class);
+            }
+
+            CreatorParameter[] expectedParameters() {
+                return new CreatorParameter[]{
+                        new CreatorParameter(0, Set.class, String.class, "strings", null, null),
+                        new CreatorParameter(1, List.class, String.class, "stringList", null, null),
+                        new CreatorParameter(2, LinkedList.class, String.class, "concreteList", null, null),
+                        new CreatorParameter(3, Queue.class, String.class, "aQueue", null, null),
+                        new CreatorParameter(4, List.class, PojoWithEnum.class, "complexList", null, null)
+                };
+            }
+
+            @Test
+            void itShouldListParametersInOrder() {
+                assertThat(creator.instanceAttributes.values().stream().findFirst().get().getIndexedParameters().values())
                         .hasSize(5)
                         .containsExactly(expectedParameters());
             }

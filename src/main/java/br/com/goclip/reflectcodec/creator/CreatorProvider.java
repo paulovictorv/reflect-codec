@@ -18,7 +18,7 @@ public class CreatorProvider {
             if (creatorCache.containsKey(type)) {
                 return creatorCache.get(type);
             } else {
-                Creator single = CreatorFactory.createSingle(type);
+                Creator single = CreatorFactory.create(type);
                 creatorCache.put(type, single);
                 return single;
             }
