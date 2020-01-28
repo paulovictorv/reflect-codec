@@ -19,6 +19,21 @@ import static java.util.stream.Collectors.toList;
 
 public class CreatorFactory {
 
+    public static Creator create(Class<?> type) {
+        Optional<Creator> creator;
+        if (Modifier.isAbstract(type.getModifiers()) || type.isInterface()) {
+            Map<Constructor<?>, Parameters> subtypes = getSubtypeInstanceAttributes(type);
+            creator = Optional.ofNullable(Creator.create().withType(type).withInstanceAttributes(subtypes));
+        } else {
+            creator = Arrays.stream(type.getDeclaredConstructors())
+                    .filter(CreatorFactory::isMainConstructor)
+                    .map(constructor -> Creator.create().withType(type)
+                            .withInstanceAttributes(Map.of(constructor, new Parameters(type.getSimpleName(), createCreatorParameters(constructor)))))
+                    .findFirst();
+        }
+        return creator.orElseThrow(() -> new NoCreatorDefinedException(type));
+    }
+
     private static Map<Constructor<?>, Parameters> getSubtypeInstanceAttributes(Class<?> supertype) {
         List<Constructor<?>> constructors = extractSubclassConstructors(supertype);
         Map<Constructor<?>, Parameters> constructorAndParameters = new HashMap<>();
@@ -46,26 +61,12 @@ public class CreatorFactory {
         }).collect(toList());
     }
 
-    public static Creator create(Class<?> type) {
-        Optional<Creator> creator;
-        if (Modifier.isAbstract(type.getModifiers()) || type.isInterface()) {
-            Map<Constructor<?>, Parameters> subtypes = getSubtypeInstanceAttributes(type);
-            creator = Optional.ofNullable(Creator.create().withType(type).withInstanceAttributes(subtypes));
-        } else {
-            creator = Arrays.stream(type.getDeclaredConstructors())
-                    .filter(CreatorFactory::isMainConstructor)
-                    .map(constructor -> Creator.create().withType(type)
-                    .withInstanceAttributes(Map.of(constructor, new Parameters(type.getSimpleName(), createCreatorParameters(constructor)))))
-                    .findFirst();
-        }
-        return creator.orElseThrow(() -> new NoCreatorDefinedException(type));
-    }
-
     private static List<Constructor<?>> extractSubclassConstructors(Class<?> type) {
         return Arrays.stream(type.getAnnotation(JsonSubTypes.class)
-                .value()
-                .clone())
-                .map(JsonSubTypes.Type::value)
+                .value())
+                .map(jacksonAnnotation -> {
+                    Creator.create().w
+                })
                 .map(Class::getConstructors)
                 .flatMap(Arrays::stream)
                 .filter(CreatorFactory::isMainConstructor)

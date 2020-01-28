@@ -17,7 +17,9 @@ public class Creator {
 
     public final Class<?> type;
     public final Class<?> concreteType;
-    public final Map<Constructor<?>, Parameters> instanceAttributes;
+    public final String typeId;
+    private final Constructor<?> constructor;
+    public final Map<String, Creator> instanceAttributes;
 
     public Creator(Class<?> type,
                    Class<?> concreteType,
@@ -25,6 +27,15 @@ public class Creator {
         this.type = type;
         this.concreteType = concreteType;
         this.instanceAttributes = instanceAttributes;
+    }
+
+    public Object newInstance(Parameters parameters) {
+        if (this.constructor == null) { //I'm abstract
+            String typeName = parameters.getTypeAttribute();
+            return instanceAttributes.get(typeName).newInstance(parameters.sortedValues());
+        } else {
+            return constructor.newInstance(parameters.sortedValues());
+        }
     }
 
     public Object newInstance(Map<Constructor<?>, Parameters> instanceAttributes) {
