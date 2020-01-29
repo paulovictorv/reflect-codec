@@ -7,16 +7,11 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.beans.ConstructorProperties;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.MalformedParameterizedTypeException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.atomic.AtomicReferenceArray;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.*;
@@ -28,7 +23,7 @@ public class CreatorFactory {
         if (Modifier.isAbstract(type.getModifiers()) || type.isInterface()) {
             Map<String, Creator> subtypes = getSubtypes(type);
             String property = type.getAnnotation(JsonTypeInfo.class).property();
-            creator = Optional.ofNullable(Creator.create().withType(type).withSubtypes(subtypes).withTypeId(property));
+            creator = Optional.ofNullable(Creator.create().withType(type).withSubtypes(subtypes).withTypeKeyId(property));
         } else {
             creator = Arrays.stream(type.getDeclaredConstructors())
                     .map(constructor -> {

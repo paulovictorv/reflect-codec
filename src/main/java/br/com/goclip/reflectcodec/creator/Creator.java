@@ -5,7 +5,6 @@ import lombok.With;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -15,13 +14,12 @@ import java.util.stream.Collectors;
 public class Creator {
 
     public static Creator create() {
-        return new Creator(null, null,  null, null, null, null, null);
+        return new Creator(null, null,  null, null, null, null);
     }
 
     public final Class<?> type;
     public final Class<?> concreteType;
     public final String typeKeyId;
-    public final String typeId;
     private final Constructor<?> constructor;
     public final Parameters parameters;
     public final Map<String, Creator> subtypes;
@@ -29,14 +27,12 @@ public class Creator {
     public Creator(Class<?> type,
                    Class<?> concreteType,
                    String typeKeyId,
-                   String typeId,
                    Constructor<?> constructor,
                    Parameters parameters,
                    Map<String, Creator> subtypes) {
         this.type = type;
         this.concreteType = concreteType;
         this.typeKeyId = typeKeyId;
-        this.typeId = typeId;
         this.constructor = constructor;
         this.parameters = parameters;
         this.subtypes = subtypes;
@@ -45,7 +41,7 @@ public class Creator {
     public Object newInstance(Parameters parameter) {
         try {
             if (constructor == null) {
-                    String propertyName = parameter.getTypeId(this.typeId);
+                    String propertyName = parameter.getTypeKeyId(this.typeKeyId);
                     if (!propertyName.isBlank()) {
                         Creator creator = subtypes.get(propertyName);
                         return creator.constructor.newInstance(creator.mergeParameters(parameter).sortedValues());
