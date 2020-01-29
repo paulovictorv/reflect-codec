@@ -25,6 +25,10 @@ public class Parameters {
                 .collect(Collectors.toMap(p -> p.name, Function.identity()));
     }
 
+    public String getTypeId(String parameterName) {
+        return String.valueOf(this.indexedParameters.get(parameterName).value());
+    }
+
     public void assignValue(String parameterName, Function<CreatorParameter, Object> computingFunction) {
         try {
             indexedParameters.computeIfPresent(parameterName,
@@ -37,6 +41,7 @@ public class Parameters {
     public Object[] sortedValues() {
         return indexedParameters.values()
                 .stream()
+                .filter(creatorParameter -> creatorParameter.value() != null)
                 .sorted(Comparator.comparingInt(o -> o.position))
                 .map(CreatorParameter::value)
                 .collect(Collectors.toList())
@@ -45,9 +50,5 @@ public class Parameters {
 
     protected Parameters copyOf() {
         return new Parameters(this.typeName, this.indexedParameters);
-    }
-
-    public int count() {
-        return indexedParameters.size();
     }
 }

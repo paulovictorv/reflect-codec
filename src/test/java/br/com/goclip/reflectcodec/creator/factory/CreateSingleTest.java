@@ -45,7 +45,7 @@ public class CreateSingleTest {
             @Override
             Creator setup() {
                 Creator single = CreatorFactory.create(PojoWithEnum.class);
-                Parameters parameters = single.instanceAttributes.values().stream().findFirst().get();
+                Parameters parameters = single.subtypes.values().stream().findFirst().get().parameters;
                 parameters.assignValue("name", par -> "string");
                 parameters.assignValue("testEnum", par -> PojoWithEnum.TestEnum.VALUE_1);
                 return null;
@@ -62,7 +62,7 @@ public class CreateSingleTest {
 
             @Test
             void itShouldListParametersInOrder() {
-                assertThat(creator.instanceAttributes.values().stream().findFirst().get().sortedValues())
+                assertThat(creator.subtypes.values().stream().findFirst().get().parameters.sortedValues())
                         .isEqualTo(2)
                         .containsExactly(expectedParameters());
             }
@@ -87,7 +87,7 @@ public class CreateSingleTest {
 
             @Test
             void itShouldListParametersInOrder() {
-                assertThat(creator.instanceAttributes.values().stream().findFirst().get().getIndexedParameters().values())
+                assertThat(creator.subtypes.values().stream().findFirst().get().parameters.getIndexedParameters().values())
                         .hasSize(5)
                         .containsExactly(expectedParameters());
             }
@@ -116,7 +116,7 @@ public class CreateSingleTest {
 
             @Test
             void itShouldListParametersInOrder() {
-                assertThat(creator.instanceAttributes.values().stream().findFirst().get().getIndexedParameters().values())
+                assertThat(creator.subtypes.values().stream().findFirst().get().parameters.getIndexedParameters().values())
                         .hasSize(5)
                         .containsExactly(expectedParameters());
             }
@@ -146,7 +146,7 @@ public class CreateSingleTest {
 
             @Test
             void itShouldListParametersInOrder() {
-                assertThat(creator.instanceAttributes.values().stream().findFirst().get().getIndexedParameters().values())
+                assertThat(creator.subtypes.values().stream().findFirst().get().parameters.getIndexedParameters().values())
                         .hasSize(5)
                         .containsExactly(expectedParameters());
             }
