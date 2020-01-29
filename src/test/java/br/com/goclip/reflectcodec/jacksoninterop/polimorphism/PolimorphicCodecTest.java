@@ -59,10 +59,8 @@ public class PolimorphicCodecTest {
 
         @Test
         void itShouldDecodeToSimpleRental() {
-            assertThat(read)
-                    .isInstanceOf(SimpleRental.class);
+            assertThat(read).isInstanceOf(SimpleRental.class);
         }
-
     }
 
 }

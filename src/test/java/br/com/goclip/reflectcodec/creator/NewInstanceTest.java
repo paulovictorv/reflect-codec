@@ -1,6 +1,5 @@
 package br.com.goclip.reflectcodec.creator;
 
-import br.com.goclip.reflectcodec.jacksoninterop.polimorphism.model.Link;
 import br.com.goclip.reflectcodec.model.PojoWithCollection;
 import br.com.goclip.reflectcodec.model.PojoWithEnum;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class NewInstanceTest {
 
     private Creator creator;
-    List<Parameters> parameters;
+    Parameters parameters;
 
 
     @Nested
@@ -44,30 +43,13 @@ public class NewInstanceTest {
 
         public void setup() {
             creator = CreatorFactory.create(PojoWithCollection.class);
-            parameters = null;
-//            parameters = creator.parameters();
-            parameters.forEach(param -> param.assignValue("strings", par -> Set.of("setstring1")));
-            parameters.forEach(param -> param.assignValue("stringList", par -> List.of("liststring1")));
-            parameters.forEach(param -> param.assignValue("concreteList", par -> new LinkedList<>(List.of("linkedstring1"))));
-            parameters.forEach(param -> param.assignValue("aQueue", par -> new LinkedList<>(List.of("aa", "bb"))));
-            parameters.forEach(param -> param.assignValue("complexList", par -> List.of(new PojoWithEnum("name", PojoWithEnum.TestEnum.VALUE_1))));
+            parameters = creator.parameters();
+            parameters.assignValue("strings", par -> Set.of("setstring1"));
+            parameters.assignValue("stringList", par -> List.of("liststring1"));
+            parameters.assignValue("concreteList", par -> new LinkedList<>(List.of("linkedstring1")));
+            parameters.assignValue("aQueue", par -> new LinkedList<>(List.of("aa", "bb")));
+            parameters.assignValue("complexList", par -> List.of(new PojoWithEnum("name", PojoWithEnum.TestEnum.VALUE_1)));
         }
 
     }
-
-    @Nested
-    public class WhenCreatingANewPolymorphismInstance extends DescribeNewInstance {
-
-        @Test
-        void itShouldInstantiateCorrectly() {
-            assertThat(result).isInstanceOf(PojoWithCollection.class);
-        }
-
-        @Override
-        void setup() {
-            creator = CreatorFactory.create(Link.class);
-//            parameters = creator.parameters();
-        }
-    }
-
 }

@@ -41,7 +41,6 @@ public class Parameters {
     public Object[] sortedValues() {
         return indexedParameters.values()
                 .stream()
-                .filter(creatorParameter -> creatorParameter.value() != null)
                 .sorted(Comparator.comparingInt(o -> o.position))
                 .map(CreatorParameter::value)
                 .collect(Collectors.toList())

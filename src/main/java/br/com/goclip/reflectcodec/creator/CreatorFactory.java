@@ -30,7 +30,7 @@ public class CreatorFactory {
                         List<CreatorParameter> creatorParameters = createCreatorParameters(constructor);
                         if (!creatorParameters.isEmpty()) {
                             Parameters parameters = new Parameters(type.getSimpleName(), creatorParameters);
-                            return Creator.create().withType(type).withParameters(parameters);
+                            return Creator.create().withConstructor(constructor).withType(type).withParameters(parameters);
                         }
                         return null;
                     })

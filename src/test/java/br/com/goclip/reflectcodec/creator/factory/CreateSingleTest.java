@@ -12,10 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,11 +42,10 @@ public class CreateSingleTest {
             @Override
             Creator setup() {
                 Creator single = CreatorFactory.create(PojoWithEnum.class);
-                Parameters parameters = single.subtypes.values().stream().findFirst().get().parameters;
+                Parameters parameters = single.getParameters();
                 parameters.assignValue("name", par -> "string");
                 parameters.assignValue("testEnum", par -> PojoWithEnum.TestEnum.VALUE_1);
-                return null;
-//                return single.withParameters(parameters);
+                return single.withParameters(parameters);
             }
 
             @Override
@@ -62,8 +58,8 @@ public class CreateSingleTest {
 
             @Test
             void itShouldListParametersInOrder() {
-                assertThat(creator.subtypes.values().stream().findFirst().get().parameters.sortedValues())
-                        .isEqualTo(2)
+                assertThat(creator.parameters().sortedValues())
+                        .hasSize(2)
                         .containsExactly(expectedParameters());
             }
         }
@@ -87,7 +83,7 @@ public class CreateSingleTest {
 
             @Test
             void itShouldListParametersInOrder() {
-                assertThat(creator.subtypes.values().stream().findFirst().get().parameters.getIndexedParameters().values())
+                assertThat(creator.parameters.getIndexedParameters().values().stream().sorted(Comparator.comparingInt(o -> o.position)))
                         .hasSize(5)
                         .containsExactly(expectedParameters());
             }
@@ -116,7 +112,7 @@ public class CreateSingleTest {
 
             @Test
             void itShouldListParametersInOrder() {
-                assertThat(creator.subtypes.values().stream().findFirst().get().parameters.getIndexedParameters().values())
+                assertThat(creator.parameters.getIndexedParameters().values().stream().sorted(Comparator.comparingInt(o -> o.position)))
                         .hasSize(5)
                         .containsExactly(expectedParameters());
             }
@@ -146,14 +142,11 @@ public class CreateSingleTest {
 
             @Test
             void itShouldListParametersInOrder() {
-                assertThat(creator.subtypes.values().stream().findFirst().get().parameters.getIndexedParameters().values())
+                assertThat(creator.parameters().getIndexedParameters().values().stream().sorted(Comparator.comparingInt(o -> o.position)))
                         .hasSize(5)
                         .containsExactly(expectedParameters());
             }
 
         }
     }
-
-
-
 }

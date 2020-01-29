@@ -16,7 +16,15 @@ public class CodecTest {
 
         @Test
         void itShouldDecodeCorrectly() {
-            writeReadCompare(new PrimitivePojo(12, 'a', 12L, 12.33, 12.33f, (byte) 1, false), codec(PrimitivePojo.class));
+            writeReadCompare(
+                    new PrimitivePojo(12,
+                            'a', 12L,
+                            12.33,
+                            12.33f,
+                            (byte) 1,
+                            false),
+                    codec(PrimitivePojo.class)
+            );
         }
 
     }
