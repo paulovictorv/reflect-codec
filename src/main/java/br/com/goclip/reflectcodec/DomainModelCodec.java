@@ -80,5 +80,4 @@ public class DomainModelCodec implements Codec<Object> {
     public Class<Object> getEncoderClass() {
         return null;
     }
-
 }

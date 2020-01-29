@@ -27,8 +27,12 @@ public class CreatorProvider {
         }
     }
 
+    public boolean hasPackageName(Class<?> cachedClass) {
+        Package aPackage = cachedClass.getPackage();
+        return aPackage != null && aPackage.getName().contains(pkg);
+    }
+
     private boolean checkPackage(String provPackage) {
         return provPackage != null && provPackage.contains(pkg);
     }
-
 }

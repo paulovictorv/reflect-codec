@@ -12,12 +12,10 @@ import java.lang.reflect.Modifier;
  */
 public class AppCodecProvider implements CodecProvider {
 
-    private final ObjectSpecCache cache;
     private final CreatorProvider creatorProvider;
 
     public AppCodecProvider(String packageName) {
         creatorProvider = new CreatorProvider(packageName);
-        cache = new ObjectSpecCache(packageName);
     }
 
     /***
@@ -29,20 +27,9 @@ public class AppCodecProvider implements CodecProvider {
      */
     @Override
     public <T> Codec<T> get(Class<T> clazz, CodecRegistry registry) {
-        if (!Enum.class.isAssignableFrom(clazz) && cache.hasPackageName(clazz)) { //skip enums even if in the same pkg
+        if (!Enum.class.isAssignableFrom(clazz) && creatorProvider.hasPackageName(clazz)) { //skip enums even if in the same pkg
             return (Codec<T>) new DomainModelCodec(registry, creatorProvider.get(clazz));
         }
         return null;
     }
-
-
-    /***
-     * Verify if type is an abstract type (interface or abstract class)
-     * @param modifiers a set of modifiers
-     * @return boolean representing if modifiers is an interface or abstract
-     */
-    private boolean needsPolymorphism(int modifiers) {
-        return Modifier.isInterface(modifiers) || Modifier.isAbstract(modifiers);
-    }
-
 }
