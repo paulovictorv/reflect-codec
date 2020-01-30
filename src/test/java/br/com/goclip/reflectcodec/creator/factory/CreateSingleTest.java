@@ -127,7 +127,7 @@ public class CreateSingleTest {
         class WhenCreatingSingleWithGenerics extends DescribeCreateSingle {
 
             Creator setup() {
-                return CreatorFactory.create(Link.class);
+                return CreatorFactory.create(PropsWithCollections.class);
             }
 
             CreatorParameter[] expectedParameters() {
