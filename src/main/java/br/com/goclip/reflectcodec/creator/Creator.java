@@ -47,7 +47,7 @@ public class Creator {
                     Creator creator = subtypes.get(propertyName);
                     return creator.constructor.newInstance(creator.mergeParameters(parameter).sortedValues());
                 }
-                throw new UndefinedSubtypeNameException(String.format("Not defined subtype name to some %s subclass", type.getSimpleName()));
+                throw new UndefinedSubtypeNameException(type);
             } else {
                 return constructor.newInstance(parameters.sortedValues());
             }
