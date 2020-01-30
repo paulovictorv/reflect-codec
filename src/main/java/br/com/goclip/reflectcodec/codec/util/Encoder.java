@@ -47,7 +47,7 @@ public class Encoder {
                     }
                 }
             } catch (IllegalAccessException e) {
-                logger.warn("It does not have access to the definition of field " + field.getName(), e);
+                logger.warn(field.getName() + " is not accessible, and can't be made accessible.", e);
             }
         }
         writer.writeEndDocument();
