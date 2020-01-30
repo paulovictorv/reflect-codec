@@ -50,6 +50,5 @@ public class NewInstanceTest {
             parameters.assignValue("aQueue", par -> new LinkedList<>(List.of("aa", "bb")));
             parameters.assignValue("complexList", par -> List.of(new PojoWithEnum("name", PojoWithEnum.TestEnum.VALUE_1)));
         }
-
     }
 }

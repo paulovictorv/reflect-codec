@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.bson.BsonWriter;
 import org.bson.codecs.EncoderContext;
 import org.bson.codecs.configuration.CodecRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static br.com.goclip.reflectcodec.codec.util.PrimitiveUtils.mapToBoxedType;
@@ -21,6 +22,7 @@ public class Encoder {
     public Encoder(CodecRegistry registry) {
         this.registry = registry;
     }
+    private static final Logger logger = LoggerFactory.getLogger(Encoder.class);
 
     public void encode(BsonWriter writer, Object value, EncoderContext encoderContext) {
         writer.writeStartDocument();
@@ -45,7 +47,7 @@ public class Encoder {
                     }
                 }
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                logger.warn("It does not have access to the definition of field " + field.getName(), e);
             }
         }
         writer.writeEndDocument();

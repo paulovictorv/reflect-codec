@@ -25,7 +25,7 @@ public class Parameters {
                 .collect(Collectors.toMap(p -> p.name, Function.identity()));
     }
 
-    public String getTypeKeyId(String parameterName) {
+    public String getTypeKey(String parameterName) {
         return String.valueOf(this.indexedParameters.get(parameterName).value());
     }
 

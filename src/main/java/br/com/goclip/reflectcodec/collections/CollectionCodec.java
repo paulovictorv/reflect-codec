@@ -2,6 +2,7 @@ package br.com.goclip.reflectcodec.collections;
 
 import br.com.goclip.reflectcodec.codec.util.Encoder;
 import br.com.goclip.reflectcodec.creator.CreatorParameter;
+import br.com.goclip.reflectcodec.creator.exception.UnsupportedCollectionException;
 import org.bson.BsonReader;
 import org.bson.BsonType;
 import org.bson.BsonWriter;
@@ -70,7 +71,7 @@ public class CollectionCodec<T extends Collection> implements Codec<T> {
                 return (Collection) type.getConstructor().newInstance();
             } catch (Exception e) {
                 //if it doesn't, we scream
-                throw new RuntimeException("Unsupported Collection: " + type.getSimpleName());
+                throw new UnsupportedCollectionException("Unsupported Collection: " + type.getSimpleName());
             }
         }
     }

@@ -1,5 +1,6 @@
 package br.com.goclip.reflectcodec.creator;
 
+import br.com.goclip.reflectcodec.creator.exception.UndefinedSubtypeNameException;
 import lombok.Data;
 import lombok.With;
 
@@ -41,12 +42,12 @@ public class Creator {
     public Object newInstance(Parameters parameter) {
         try {
             if (constructor == null) {
-                    String propertyName = parameter.getTypeKeyId(this.typeKeyId);
-                    if (!propertyName.isBlank()) {
-                        Creator creator = subtypes.get(propertyName);
-                        return creator.constructor.newInstance(creator.mergeParameters(parameter).sortedValues());
-                    }
-                return null;
+                String propertyName = parameter.getTypeKey(this.typeKeyId);
+                if (!propertyName.isBlank()) {
+                    Creator creator = subtypes.get(propertyName);
+                    return creator.constructor.newInstance(creator.mergeParameters(parameter).sortedValues());
+                }
+                throw new UndefinedSubtypeNameException(String.format("Not defined subtype name to some %s subclass", type.getSimpleName()));
             } else {
                 return constructor.newInstance(parameters.sortedValues());
             }
