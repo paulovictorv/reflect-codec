@@ -30,12 +30,11 @@ public class Parameters {
     }
 
     public void assignValue(String parameterName, Function<CreatorParameter, Object> computingFunction) {
-        try {
-            indexedParameters.computeIfPresent(parameterName,
+            var result = indexedParameters.computeIfPresent(parameterName,
                     (key, creatorParameter) -> creatorParameter.withValue(computingFunction.apply(creatorParameter)));
-        } catch (NullPointerException e) {
-            throw new AttributeNotMapped(this.typeName, parameterName);
-        }
+            if (result == null) {
+                throw new AttributeNotMapped(this.typeName, parameterName);
+            }
     }
 
     public Object[] sortedValues() {
