@@ -52,7 +52,7 @@ public class CreatorParameter implements Comparable<CreatorParameter> {
     private final Object value;
 
     public CreatorParameter withValue(Object value) {
-        if (!type.isInstance(value)) {
+        if (value != null && !type.isInstance(value)) {
             throw new IncompatibleTypesException(type, value.getClass());
         } else {
             return new CreatorParameter(position, type, genericType, name, subTypes, value);

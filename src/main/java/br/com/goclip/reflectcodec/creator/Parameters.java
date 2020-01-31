@@ -31,7 +31,7 @@ public class Parameters {
 
     public void assignValue(String parameterName, Function<CreatorParameter, Object> computingFunction) {
             var result = indexedParameters.computeIfPresent(parameterName,
-                    (key, creatorParameter) -> creatorParameter.withValue(computingFunction.apply(creatorParameter)));
+                    (key, creatorParameter) -> creatorParameter.withValue(computingFunction.apply(creatorParameter) ));
             if (result == null) {
                 throw new AttributeNotMapped(this.typeName, parameterName);
             }
