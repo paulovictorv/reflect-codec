@@ -28,7 +28,7 @@ public class PolimorphicCodecTest {
 
         @Override
         protected BasicOutputBuffer write() {
-            return write(new SimpleRental("123", new Person("name")), Link.class);
+            return write(new SimpleRental("123", new Person(null, "name")), Link.class);
         }
 
         @Override
@@ -49,7 +49,7 @@ public class PolimorphicCodecTest {
 
         @Override
         protected BasicOutputBuffer write() {
-            return write(new SimpleRental("123", new Person("name")), Link.class);
+            return write(new SimpleRental("123", new Person(null, "name")), Link.class);
         }
 
         @Override
@@ -59,10 +59,8 @@ public class PolimorphicCodecTest {
 
         @Test
         void itShouldDecodeToSimpleRental() {
-            assertThat(read)
-                    .isInstanceOf(SimpleRental.class);
+            assertThat(read).isInstanceOf(SimpleRental.class);
         }
-
     }
 
 }

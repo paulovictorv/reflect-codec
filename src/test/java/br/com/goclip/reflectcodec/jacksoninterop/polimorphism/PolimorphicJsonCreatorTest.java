@@ -24,7 +24,7 @@ public class PolimorphicJsonCreatorTest {
         public void unmarshall() throws IOException {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JavaTimeModule());
-            SimpleRental simpleRental = new SimpleRental("123", new Person("123"));
+            SimpleRental simpleRental = new SimpleRental("123", new Person(null, "123"));
             simpleRentalJson = objectMapper.writeValueAsString(simpleRental);
             rental = objectMapper.readValue(simpleRentalJson, Link.class);
         }

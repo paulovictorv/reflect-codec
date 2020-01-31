@@ -1,4 +1,4 @@
-package br.com.goclip.reflectcodec.jacksoninterop.creators.model;
+package br.com.goclip.reflectcodec.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,6 +11,7 @@ public class PrimitivePojo {
     public final double aDouble;
     public final float aFloat;
     public final byte aByte;
+    public final boolean aBoolean;
 
     @JsonCreator
     public PrimitivePojo(@JsonProperty("integer") int integer,
@@ -18,13 +19,15 @@ public class PrimitivePojo {
                          @JsonProperty("aLong") long aLong,
                          @JsonProperty("aDouble") double aDouble,
                          @JsonProperty("aFloat") float aFloat,
-                         @JsonProperty("aByte") byte aByte) {
+                         @JsonProperty("aByte") byte aByte,
+                         @JsonProperty("aBoolean") boolean aBoolean) {
         this.integer = integer;
         this.character = character;
         this.aLong = aLong;
         this.aDouble = aDouble;
         this.aFloat = aFloat;
         this.aByte = aByte;
+        this.aBoolean = aBoolean;
     }
 
     @Override

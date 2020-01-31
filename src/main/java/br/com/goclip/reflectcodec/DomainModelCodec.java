@@ -1,6 +1,11 @@
 package br.com.goclip.reflectcodec;
 
-import br.com.goclip.reflectcodec.util.Encoder;
+import br.com.goclip.reflectcodec.codec.util.Encoder;
+import br.com.goclip.reflectcodec.collections.CollectionCodec;
+import br.com.goclip.reflectcodec.creator.Creator;
+import br.com.goclip.reflectcodec.creator.Parameters;
+import br.com.goclip.reflectcodec.creator.exception.AttributeNotMapped;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.bson.BsonReader;
 import org.bson.BsonType;
 import org.bson.BsonWriter;
@@ -9,21 +14,24 @@ import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
 import org.bson.codecs.configuration.CodecRegistry;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.stream.Collectors;
 
-import static br.com.goclip.reflectcodec.util.PrimitiveUtils.mapToBoxedType;
+import static br.com.goclip.reflectcodec.codec.util.PrimitiveUtils.mapToBoxedType;
 
 /**
  * Created by paulo on 10/06/17.
  */
 public class DomainModelCodec implements Codec<Object> {
     private final CodecRegistry registry;
-    private final BuilderSpec builderSpec;
+    private final Creator creator;
     private final Encoder encoder;
 
-    public DomainModelCodec(CodecRegistry registry, BuilderSpec builderSpec) {
+    public DomainModelCodec(CodecRegistry registry, Creator creator) {
         this.registry = registry;
-        this.builderSpec = builderSpec;
+        this.creator = creator;
         this.encoder = new Encoder(registry);
     }
 
@@ -33,74 +41,34 @@ public class DomainModelCodec implements Codec<Object> {
      * @param decoderContext
      * @return target java object
      */
-
     @Override
     public Object decode(BsonReader reader, DecoderContext decoderContext) {
-        ObjectBuilder builder = builderSpec.builder();
-
         reader.readStartDocument();
+        Parameters parameters = creator.parameters();
         while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
             String fieldName = reader.readName();
-
-            if (builder.hasField(fieldName)) {
-                builder.mapValue(fieldName, builderParameter -> {
+            try {
+                parameters.assignValue(fieldName, creatorParameter -> {
                     if (reader.getCurrentBsonType() == BsonType.NULL) {
+                        //TODO config if we should always read/write null values
                         reader.readNull();
                         return null;
-                    } else if (builderParameter.type.isPrimitive()) {
-                        return this.registry.get(mapToBoxedType(builderParameter.type)).decode(reader, decoderContext);
-                    } else if (Collection.class.isAssignableFrom(builderParameter.type)
+                    } else if (creatorParameter.type.isPrimitive()) {
+                        return this.registry.get(mapToBoxedType(creatorParameter.type)).decode(reader, decoderContext);
+                    } else if (Collection.class.isAssignableFrom(creatorParameter.type)
                             && reader.getCurrentBsonType() == BsonType.ARRAY) {
-                        //if parameter is a collection, lets decode it
-                        //getting the actual generic type to decode it correctly
-                        Collection dynamic = buildCollection(builderParameter.type);
-                        reader.readStartArray();
-                        while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
-                            Object decode = this.registry.get(builderParameter.genericType).decode(reader, decoderContext);
-                            dynamic.add(decode);
-                        }
-                        reader.readEndArray();
-                        return dynamic;
+                        return new CollectionCodec(this.registry, creatorParameter).decode(reader, decoderContext);
                     } else {
-                        return this.registry.get(builderParameter.type).decode(reader, decoderContext);
+                        return this.registry.get(creatorParameter.type).decode(reader, decoderContext);
                     }
                 });
-            } else {
+            } catch (AttributeNotMapped e) {
+                //TODO config if we should always ignore unmapped or throw exception
                 reader.skipValue();
             }
-
         }
         reader.readEndDocument();
-
-        return builder.build();
-    }
-
-    /***
-     * Creates an instance of the Collection being decoded.
-     * If it is an abstract type, we need to define a default implementation otherwise
-     * we assume it has an constructor that accepts a collection
-     * @param type
-     * @return
-     */
-
-    private Collection buildCollection(Class<?> type) {
-        if (type.isInterface()) { //
-            //TODO define this as an hotspot
-            if (Set.class.isAssignableFrom(type)) {
-                return new HashSet<>();
-            } else if (Queue.class.isAssignableFrom(type)) {
-                return new LinkedList<>();
-            } else {
-                return new ArrayList<>();
-            }
-        } else {
-            try {
-                return (Collection) type.getConstructor().newInstance();
-            } catch (Exception e) {
-                //if it doesn't, we scream
-                throw new RuntimeException("Unsupported Collection: " + type.getSimpleName());
-            }
-        }
+        return creator.newInstance(parameters);
     }
 
     @Override
