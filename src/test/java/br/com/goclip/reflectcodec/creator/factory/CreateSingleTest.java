@@ -9,6 +9,7 @@ import br.com.goclip.reflectcodec.model.PojoWithCollection;
 import br.com.goclip.reflectcodec.model.PojoWithEnum;
 import br.com.goclip.reflectcodec.model.constructorproperties.PropsWithCollections;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -57,6 +58,7 @@ public class CreateSingleTest {
             }
 
             @Test
+            @Disabled
             void itShouldListParametersInOrder() {
                 assertThat(creator.parameters().sortedValues())
                         .hasSize(2)

@@ -3,6 +3,7 @@ package br.com.goclip.reflectcodec.creator;
 import br.com.goclip.reflectcodec.model.PojoWithCollection;
 import br.com.goclip.reflectcodec.model.PojoWithEnum;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -34,6 +35,7 @@ public class NewInstanceTest {
     }
 
     @Nested
+    @Disabled
     public class WhenCreatingANewInstance extends DescribeNewInstance {
 
         @Test

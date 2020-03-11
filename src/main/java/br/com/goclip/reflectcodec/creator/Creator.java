@@ -49,7 +49,7 @@ public class Creator {
                 }
                 throw new UndefinedSubtypeNameException(type);
             } else {
-                return constructor.newInstance(parameters.sortedValues());
+                return constructor.newInstance(parameter.sortedValues());
             }
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);

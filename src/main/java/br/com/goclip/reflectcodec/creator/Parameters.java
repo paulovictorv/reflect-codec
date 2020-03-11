@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.With;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -38,15 +39,21 @@ public class Parameters {
     }
 
     public Object[] sortedValues() {
-        return indexedParameters.values()
+        Object[] objects = indexedParameters.values()
                 .stream()
                 .sorted(Comparator.comparingInt(o -> o.position))
                 .map(CreatorParameter::value)
                 .collect(Collectors.toList())
                 .toArray(new Object[]{});
+        return objects;
     }
 
     protected Parameters copyOf() {
-        return new Parameters(this.typeName, this.indexedParameters);
+        HashMap<String, CreatorParameter> objectObjectHashMap = new HashMap<>();
+        this.indexedParameters.entrySet().forEach(es -> {
+            CreatorParameter cp = es.getValue();
+            objectObjectHashMap.put(es.getKey(), cp.withValue(null));
+        });
+        return new Parameters(this.typeName, objectObjectHashMap);
     }
 }
