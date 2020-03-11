@@ -59,7 +59,8 @@ public class DomainModelCodec implements Codec<Object> {
                             && reader.getCurrentBsonType() == BsonType.ARRAY) {
                         return new CollectionCodec(this.registry, creatorParameter).decode(reader, decoderContext);
                     } else {
-                        return this.registry.get(creatorParameter.type).decode(reader, decoderContext);
+                        Object decode = this.registry.get(creatorParameter.type).decode(reader, decoderContext);
+                        return decode;
                     }
                 });
             } catch (AttributeNotMapped e) {
