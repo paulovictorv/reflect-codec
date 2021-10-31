@@ -4,17 +4,24 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>br.com.goclip</groupId>
+    <groupId>io.pmelo</groupId>
     <artifactId>reflect-codec</artifactId>
-    <version>1.0.0-RC3</version>
+    <version>1.0.0-SNAPSHOT</version>
 
-    <distributionManagement>
-        <repository>
-            <id>aws-release</id>
-            <name>AWS Release Repository</name>
-            <url>s3://cliptech-repository/release</url>
-        </repository>
-    </distributionManagement>
+    <name>Reflect Codec</name>
+    <description>A generic codec with ODM capabilities</description>
+    <url>https://github.com/paulovictorv/reflect-codec</url>
+
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/paulovictorv/reflect-codec</url>
+    </scm>
 
     <dependencies>
         <dependency>
