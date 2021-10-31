@@ -19,7 +19,7 @@ public class AppCodecProvider implements CodecProvider {
     /***
      * Returns a codec for clazz if it's not an Enum and the class is in the package defined during initialization
      * @param clazz represent a class to be encoded/decoded
-     * @param registry
+     * @param registry provided by mongo driver
      * @param <T> Codec and class type
      * @return codec to clazz
      */

@@ -1,7 +1,6 @@
 package io.pmelo.reflectcodec.creator.factory;
 
 import io.pmelo.reflectcodec.creator.Creator;
-import io.pmelo.reflectcodec.creator.CreatorFactory;
 import io.pmelo.reflectcodec.creator.CreatorParameter;
 import io.pmelo.reflectcodec.creator.Parameters;
 import io.pmelo.reflectcodec.model.PojoWithCollection;

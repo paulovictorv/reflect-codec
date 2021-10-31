@@ -1,6 +1,7 @@
 package io.pmelo.reflectcodec.creator;
 
 import io.pmelo.reflectcodec.creator.exception.UndefinedSubtypeNameException;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.With;
 
@@ -10,8 +11,12 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Models a Constructor declaration with its arguments. It's assembled by a CreatorFactory.
+ */
 @Data
 @With
+@AllArgsConstructor
 public class Creator {
 
     public static Creator create() {
@@ -25,34 +30,43 @@ public class Creator {
     public final Parameters parameters;
     public final Map<String, Creator> subtypes;
 
-    public Creator(Class<?> type,
-                   Class<?> concreteType,
-                   String typeKeyId,
-                   Constructor<?> constructor,
-                   Parameters parameters,
-                   Map<String, Creator> subtypes) {
-        this.type = type;
-        this.concreteType = concreteType;
-        this.typeKeyId = typeKeyId;
-        this.constructor = constructor;
-        this.parameters = parameters;
-        this.subtypes = subtypes;
-    }
-
-    public Object newInstance(Parameters parameter) {
+    /**
+     * Reflectively creates a new instance of type. It takes Parameters and merges with the internal Parameters.
+     * @param parameters used to create a new instance
+     * @return a new instance of a given type
+     */
+    public Object newInstance(Parameters parameters) {
         try {
             if (constructor == null) {
-                String propertyName = parameter.getTypeKey(this.typeKeyId);
+                String propertyName = parameters.getTypeKey(this.typeKeyId);
                 if (!propertyName.isBlank()) {
                     Creator creator = subtypes.get(propertyName);
-                    return creator.constructor.newInstance(creator.mergeParameters(parameter).sortedValues());
+                    return creator.constructor.newInstance(creator.mergeParameters(parameters).sortedValues());
                 }
                 throw new UndefinedSubtypeNameException(type);
             } else {
-                return constructor.newInstance(parameter.sortedValues());
+                return constructor.newInstance(parameters.sortedValues());
             }
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Returns the declared parameters for this given Creator
+     * @return an instance of Parameters
+     */
+    public Parameters parameters() {
+        //constructors can be null if we are navigating through abstract classes
+        if (this.constructor == null) {
+            //assembles a pseudo parameters collecting from all declared subtypes
+            Map<String, CreatorParameter> collect = subtypes.values().stream()
+                    .map(creator -> creator.parameters.getIndexedParameters().values())
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toMap(c -> c.name, Function.identity(), (existing, replacement) -> replacement));
+            return new Parameters(this.type.getSimpleName(), collect);
+        } else {
+            return parameters.copyOf();
         }
     }
 
@@ -64,15 +78,4 @@ public class Creator {
         return new Parameters(parameter.getTypeName(), collect);
     }
 
-    public Parameters parameters() {
-        if (this.constructor == null) {
-            Map<String, CreatorParameter> collect = subtypes.values().stream()
-                    .map(creator -> creator.parameters.getIndexedParameters().values())
-                    .flatMap(Collection::stream)
-                    .collect(Collectors.toMap(c -> c.name, Function.identity(), (existing, replacement) -> replacement));
-            return new Parameters(this.type.getSimpleName(), collect);
-        } else {
-            return parameters.copyOf();
-        }
-    }
 }

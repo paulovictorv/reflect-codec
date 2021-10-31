@@ -14,13 +14,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ *
+ * Class that encapsulates common encoding logic. Since this library declares multiple codecs and all of them use the
+ * same encoding logic, the code got refactored to a separate class.
+ *
+ */
 public class Encoder {
 
+    private static final Logger logger = LoggerFactory.getLogger(Encoder.class);
+
     private final CodecRegistry registry;
+
     public Encoder(CodecRegistry registry) {
         this.registry = registry;
     }
-    private static final Logger logger = LoggerFactory.getLogger(Encoder.class);
 
     public void encode(BsonWriter writer, Object value, EncoderContext encoderContext) {
         writer.writeStartDocument();
@@ -38,6 +46,7 @@ public class Encoder {
                         writer.writeName(field.getName());
                     }
                     if (fieldType.isPrimitive()) {
+                        @SuppressWarnings("unchecked")
                         Class<Object> objectClass = (Class<Object>) PrimitiveUtils.mapToBoxedType(fieldType);
                         this.registry.get(objectClass).encode(writer, fieldValue, encoderContext);
                     } else {
@@ -51,19 +60,19 @@ public class Encoder {
         writer.writeEndDocument();
     }
 
-    public List<Field> getAllFields(Object value) {
+    private List<Field> getAllFields(Object value) {
         List<Field> fieldList = new ArrayList<>();
-        Class tmpClass = value.getClass();
+        Class<?> tmpClass = value.getClass();
+
         while (tmpClass != null) {
             fieldList.addAll(Arrays.asList(tmpClass.getDeclaredFields()));
             tmpClass = tmpClass.getSuperclass();
         }
+
         return fieldList.stream()
                 .filter(field -> !Modifier.isTransient(field.getModifiers()))
-                .map(field -> {
-                    field.setAccessible(true);
-                    return field;
-                }).collect(Collectors.toList());
+                .peek(field -> field.setAccessible(true))
+                .collect(Collectors.toList());
     }
 
 }

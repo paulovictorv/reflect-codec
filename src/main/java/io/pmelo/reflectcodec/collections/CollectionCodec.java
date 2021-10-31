@@ -13,7 +13,11 @@ import org.bson.codecs.configuration.CodecRegistry;
 
 import java.util.*;
 
-public class CollectionCodec<T extends Collection> implements Codec<T> {
+/**
+ * Decodes a BsonArray into one of Java's collection types, respecting the parametrized types and collection type
+ * declared in the class
+ */
+public class CollectionCodec implements Codec<Collection> {
 
     private final CodecRegistry registry;
     private final CreatorParameter creatorParameter;
@@ -26,7 +30,7 @@ public class CollectionCodec<T extends Collection> implements Codec<T> {
     }
 
     @Override
-    public T decode(BsonReader reader, DecoderContext decoderContext) {
+    public Collection decode(BsonReader reader, DecoderContext decoderContext) {
         //if parameter is a collection, lets decode it
         //getting the actual generic type to decode it correctly
         Collection dynamic = buildCollection(creatorParameter.type);
@@ -36,7 +40,7 @@ public class CollectionCodec<T extends Collection> implements Codec<T> {
             dynamic.add(decode);
         }
         reader.readEndArray();
-        return (T) dynamic;
+        return dynamic;
     }
 
     @Override
@@ -45,19 +49,20 @@ public class CollectionCodec<T extends Collection> implements Codec<T> {
     }
 
     @Override
-    public Class<T> getEncoderClass() {
-        return (Class<T>) this.creatorParameter.type;
+    public Class<Collection> getEncoderClass() {
+        return (Class<Collection>) this.creatorParameter.type;
     }
 
     /***
      * Creates an instance of the Collection being decoded.
-     * If it is an abstract type, we need to define a default implementation otherwise
-     * we assume it has an constructor that accepts a collection
-     * @param type
-     * @return
+     * If it is an abstract type, we need to define a default implementation, otherwise
+     * we assume it has an empty constructor
+     *
+     * @param type the type of the declared class field
+     * @return an instance of the Collection
      */
     private Collection buildCollection(Class<?> type) {
-        if (type.isInterface()) { //
+        if (type.isInterface()) { //is it an interface?
             //TODO define this as an hotspot
             if (Set.class.isAssignableFrom(type)) {
                 return new HashSet<>();
@@ -70,8 +75,8 @@ public class CollectionCodec<T extends Collection> implements Codec<T> {
             try {
                 return (Collection) type.getConstructor().newInstance();
             } catch (Exception e) {
-                //if it doesn't, we scream
-                throw new UnsupportedCollectionException("Unsupported Collection: " + type.getSimpleName());
+                //if it doesn't have an empty constructor, raise exception
+                throw new UnsupportedCollectionException(type);
             }
         }
     }

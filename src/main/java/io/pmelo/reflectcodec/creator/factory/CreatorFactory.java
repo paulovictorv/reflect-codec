@@ -1,5 +1,8 @@
-package io.pmelo.reflectcodec.creator;
+package io.pmelo.reflectcodec.creator.factory;
 
+import io.pmelo.reflectcodec.creator.Creator;
+import io.pmelo.reflectcodec.creator.CreatorParameter;
+import io.pmelo.reflectcodec.creator.Parameters;
 import io.pmelo.reflectcodec.creator.exception.NoCreatorDefinedException;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -23,7 +26,7 @@ public class CreatorFactory {
         if (Modifier.isAbstract(type.getModifiers()) || type.isInterface()) {
             Map<String, Creator> subtypes = getSubtypes(type);
             String property = type.getAnnotation(JsonTypeInfo.class).property();
-            creator = Optional.ofNullable(Creator.create().withType(type).withSubtypes(subtypes).withTypeKeyId(property));
+            creator = Optional.of(Creator.create().withType(type).withSubtypes(subtypes).withTypeKeyId(property));
         } else {
             creator = Arrays.stream(type.getDeclaredConstructors())
                     .map(constructor -> {
@@ -45,20 +48,11 @@ public class CreatorFactory {
         ConstructorProperties constructorPropertiesAnnotation = constructor.getAnnotation(ConstructorProperties.class);
         Parameter[] parameters1 = constructor.getParameters();
         if (jsonCreatorAnnotation != null) {
-            return IntStream.range(0, parameters1.length).mapToObj(position -> {
-                String parameterName;
-                Parameter parameter = parameters1[position];
-                parameterName = parameter.getAnnotation(JsonProperty.class).value();
-                return CreatorParameter.create(parameter, position, parameterName);
-            }).collect(toList());
+            return new JsonCreatorCreatorParameterFactory()
+                    .createCreatorParameters(constructor);
         } else if (constructorPropertiesAnnotation != null) {
-            String[] parameterNames = constructorPropertiesAnnotation.value();
-            return IntStream.range(0, parameters1.length).mapToObj(position -> {
-                String parameterName;
-                Parameter parameter = parameters1[position];
-                parameterName = parameterNames[position];
-                return CreatorParameter.create(parameter, position, parameterName);
-            }).collect(toList());
+           return new ConstructorPropertiesCreatorParametersFactory(constructorPropertiesAnnotation)
+                   .createCreatorParameters(constructor);
         } else {
             return Collections.emptyList();
         }

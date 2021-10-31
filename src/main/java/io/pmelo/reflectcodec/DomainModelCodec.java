@@ -18,6 +18,11 @@ import java.util.*;
 
 /**
  * Created by paulo on 10/06/17.
+ *
+ * Responsible for encoding/decoding arbitrary objects. It correctly dispatches already supported types to other codecs
+ * and is able to recursively call itself to encode/decode other user defined types.
+ *
+ * This class is instantiated by the driver while setting up the codec provider chain
  */
 public class DomainModelCodec implements Codec<Object> {
     private final CodecRegistry registry;
@@ -32,28 +37,32 @@ public class DomainModelCodec implements Codec<Object> {
 
     /**
      * Decodes a Mongodb BSON byte stream to an instance of the corresponding Java class.
-     * @param reader
-     * @param decoderContext
-     * @return target java object
+     * @param reader a bson reader instance, provided by the driver
+     * @param decoderContext container object for further configuration
+     * @return an instance of the class configured under `Creator`
      */
     @Override
     public Object decode(BsonReader reader, DecoderContext decoderContext) {
         reader.readStartDocument();
         Parameters parameters = creator.parameters();
-        while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
+        while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) { //reading through key, value pairs in the document
             String fieldName = reader.readName();
             try {
+                //given a field name, pass a function that's responsible to decode the value into the parameter
                 parameters.assignValue(fieldName, creatorParameter -> {
                     if (reader.getCurrentBsonType() == BsonType.NULL) {
                         //TODO config if we should always read/write null values
                         reader.readNull();
                         return null;
                     } else if (creatorParameter.type.isPrimitive()) {
+                        //TODO remove special treatment for primitives, since it doesn't work anyway
                         return this.registry.get(PrimitiveUtils.mapToBoxedType(creatorParameter.type)).decode(reader, decoderContext);
                     } else if (Collection.class.isAssignableFrom(creatorParameter.type)
                             && reader.getCurrentBsonType() == BsonType.ARRAY) {
+                        //special treatment for Collections, otherwise it gets decoded as a BsonArray
                         return new CollectionCodec(this.registry, creatorParameter).decode(reader, decoderContext);
                     } else {
+                        //let the codec chain decode whatever gets read
                         Object decode = this.registry.get(creatorParameter.type).decode(reader, decoderContext);
                         return decode;
                     }
