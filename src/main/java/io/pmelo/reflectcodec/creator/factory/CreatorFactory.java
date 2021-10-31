@@ -4,20 +4,15 @@ import io.pmelo.reflectcodec.creator.Creator;
 import io.pmelo.reflectcodec.creator.CreatorParameter;
 import io.pmelo.reflectcodec.creator.Parameters;
 import io.pmelo.reflectcodec.creator.exception.NoCreatorDefinedException;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.pmelo.reflectcodec.creator.factory.parameters.CreatorParameterStrategy;
+import io.pmelo.reflectcodec.creator.factory.parameters.CreatorParameterStrategyFactory;
 
-import java.beans.ConstructorProperties;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.List;
-import java.util.stream.IntStream;
-
-import static java.util.stream.Collectors.*;
 
 public class CreatorFactory {
 
@@ -44,24 +39,13 @@ public class CreatorFactory {
     }
 
     private static List<CreatorParameter> createCreatorParameters(Constructor<?> constructor) {
-        JsonCreator jsonCreatorAnnotation = constructor.getAnnotation(JsonCreator.class);
-        ConstructorProperties constructorPropertiesAnnotation = constructor.getAnnotation(ConstructorProperties.class);
-        Parameter[] parameters1 = constructor.getParameters();
-        if (jsonCreatorAnnotation != null) {
-            return new JsonCreatorCreatorParameterFactory()
-                    .createCreatorParameters(constructor);
-        } else if (constructorPropertiesAnnotation != null) {
-           return new ConstructorPropertiesCreatorParametersFactory(constructorPropertiesAnnotation)
-                   .createCreatorParameters(constructor);
-        } else {
-            return Collections.emptyList();
-        }
+        CreatorParameterStrategy strategy = CreatorParameterStrategyFactory.resolve(constructor);
+        return strategy.extractCreatorParameters(constructor);
     }
 
     private static Map<String, Creator> getSubtypes(Class<?> type) {
         Map<String, Creator> subtypes = new HashMap<>();
-        Arrays.stream(type.getAnnotation(JsonSubTypes.class)
-                .value())
+        Arrays.stream(type.getAnnotation(JsonSubTypes.class).value())
                 .forEach(jsonSubtype -> {
                     String name = jsonSubtype.name();
                     Class<?> subtypeType = jsonSubtype.value();
