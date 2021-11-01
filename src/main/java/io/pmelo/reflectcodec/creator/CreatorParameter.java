@@ -2,10 +2,7 @@ package io.pmelo.reflectcodec.creator;
 
 import io.pmelo.reflectcodec.creator.exception.IncompatibleTypesException;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.With;
+import lombok.*;
 
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
@@ -20,6 +17,8 @@ import java.util.stream.Collectors;
  * It is based on this class that the codec knows how to correctly invoke a given class constructor.
  */
 @With
+@ToString
+@EqualsAndHashCode
 @AllArgsConstructor
 public class CreatorParameter implements Comparable<CreatorParameter> {
 

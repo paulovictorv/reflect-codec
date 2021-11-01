@@ -28,7 +28,7 @@ public class NewInstanceTest {
         @BeforeEach
         void test() {
             setup();
-            result = creator.newInstance(null);
+            result = creator.newInstance(parameters);
         }
 
         void setup() {}
@@ -36,7 +36,6 @@ public class NewInstanceTest {
     }
 
     @Nested
-    @Disabled
     public class WhenCreatingANewInstance extends DescribeNewInstance {
 
         @Test

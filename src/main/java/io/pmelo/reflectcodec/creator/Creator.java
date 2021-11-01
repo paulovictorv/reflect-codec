@@ -2,6 +2,7 @@ package io.pmelo.reflectcodec.creator;
 
 import io.pmelo.reflectcodec.creator.exception.UndefinedSubtypeNameException;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.With;
 
@@ -13,18 +14,33 @@ import java.util.stream.Collectors;
 
 /**
  * Models a Constructor declaration with its arguments. It's assembled by a CreatorFactory.
+ *
+ * A Creator that models an abstract class does not have an explicit Constructor. Instead, it resolves the correct
+ * constructor using the "typeKey" specified in the abstract class declaration
  */
 @Data
 @With
+@Builder
 @AllArgsConstructor
 public class Creator {
 
-    public static Creator create() {
-        return new Creator(null, null,  null, null, null, null);
+    public static Creator concreteCreator(Class<?> type, Constructor<?> constructor, Parameters parameters) {
+        return Creator.builder()
+                .type(type)
+                .constructor(constructor)
+                .parameters(parameters)
+                .build();
+    }
+
+    public static Creator abstractCreator(Class<?> type, Map<String, Creator> subtypes, String typeKeyId) {
+        return Creator.builder()
+                .type(type)
+                .subtypes(subtypes)
+                .typeKeyId(typeKeyId)
+                .build();
     }
 
     public final Class<?> type;
-    public final Class<?> concreteType;
     public final String typeKeyId;
     private final Constructor<?> constructor;
     public final Parameters parameters;
