@@ -48,17 +48,16 @@ public class CreateSingleTest {
             }
 
             @Override
-            Object[] expectedParameters() {
-                return new Object[] {
-                        "string",
-                        PojoWithEnum.TestEnum.VALUE_1
+            CreatorParameter[] expectedParameters() {
+                return new CreatorParameter[] {
+                        new CreatorParameter(0, String.class, null, "name", null, "string"),
+                        new CreatorParameter(1, PojoWithEnum.TestEnum.class, null, "testEnum", null, PojoWithEnum.TestEnum.VALUE_1),
                 };
             }
 
             @Test
-            @Disabled
             void itShouldListParametersInOrder() {
-                assertThat(creator.parameters().sortedValues())
+                assertThat(creator.parameters.getIndexedParameters().values().stream().sorted(Comparator.comparingInt(o -> o.position)))
                         .hasSize(2)
                         .containsExactly(expectedParameters());
             }

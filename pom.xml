@@ -32,9 +32,8 @@
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>3.12.10</version>
-            <scope>provided</scope>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>4.3.3</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

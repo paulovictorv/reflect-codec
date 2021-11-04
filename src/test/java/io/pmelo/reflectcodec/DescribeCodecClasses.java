@@ -1,7 +1,7 @@
 package io.pmelo.reflectcodec;
 
+import com.mongodb.MongoClientSettings;
 import io.pmelo.reflectcodec.enumcodec.EnumCodecProvider;
-import com.mongodb.MongoClient;
 import org.bson.BsonBinaryReader;
 import org.bson.BsonBinaryWriter;
 import org.bson.codecs.Codec;
@@ -61,7 +61,8 @@ public abstract class DescribeCodecClasses {
     }
 
     protected <T> Codec<T> codec(Class<T> tClass) {
-        CodecRegistry codecRegistry = CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry(),
+
+        CodecRegistry codecRegistry = CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
                 CodecRegistries.fromProviders(new EnumCodecProvider(),
                         new AppCodecProvider("io.pmelo.reflectcodec")));
         return codecRegistry.get(tClass);
